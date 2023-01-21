@@ -1,0 +1,420 @@
+---
+title: "Multivariate Distributions and Gibbs Sampling"
+output:
+  html_document:
+    df_print: paged
+fontsize: 14 pt
+spacing: double
+runtime: shiny
+---
+
+# Review of Joint, Marginal, and Conditional Distributions
+- Start with a simple superficial example: Dining Choice v.s. Gender
+    - You ask around the campus of NUK about what students are going to have for lunch later on.
+    - Can have rice, noodle or burger.
+    - Students are either male or female, physically.
+    - According to their answers, you have the following table.
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse)
+dta<-data.frame(c(0.25,0.1,0.1,0.45),c(0.15,0.35,0.05,0.55),c(0.4,0.45,0.15,1))%>%
+  'colnames<-'(c("Male","Female","Dining Choice"))%>%
+  'rownames<-'(c("Rice","Noodle","Burger","Gender of Students"))
+knitr::kable(dta)
+```
+
+- Marginal probability: 
+    - The probability that the student is male / female, i.e., $\Pr(Gender = Male)$ and $\Pr(Gender = Female)$.
+    - The probability that the student is going to have rice / noodle / burger for lunch, i.e., $\Pr(Dinning Choice = Rice)$, $\Pr(Dinning Choice = Noodle)$, and $\Pr(Dinning Choice = Burger)$.
+- Joint probability: 
+    - The probability that a specific choice of lunch **and** a specific gender happen at the same time, $\Pr(Gender,Dinning Choice)$
+    - The probability that a **male** student chooses to have **noodle** is *0.1*, i.e., $\Pr(Gender = Male,Dinning Choice = Noodle) = 0.1$
+    - The probability that a **female** student chooses to have **rice** is *0.15*, i.e., $\Pr(Gender = Female,Dinning Choice = Rice) = 0.15$
+- Conditional probability: 
+    - The probability over the student's dinning choice **given** his/her gender.
+    - The probability of the student's gender **given** his/her choice of lunch.
+- So what is the probability that a female student is going to have noodle for lunch?
+    - This is exactly a conditional probability:
+    $$
+    \Pr(Dinning Choice = Noodle|Gender = Female) = \frac{\Pr(Dinning Choice = Noodle, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.35}{0.55}=\frac{7}{11}
+    $$
+    - In fact,
+    $$
+    \Pr(Dinning Choice = Rice|Gender = Female) = \frac{\Pr(Dinning Choice = Rice, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.15}{0.55}=\frac{3}{11}
+    $$
+    $$
+    \Pr(Dinning Choice = Burger|Gender = Female) = \frac{\Pr(Dinning Choice = Burger, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.05}{0.55}=\frac{1}{11}
+    $$
+    $$
+    \Pr(Choice = Noodle|Gender = Female)+\Pr(Choice = Rice|Gender = Female)+\Pr(Choice = Burger|Gender = Female)=1
+    $$
+- Similarly, the probability that the student is male if the student have rice is also a conditional probability:
+$$
+\Pr(Gender = Male|Dinning Choice = Rice) = \frac{\Pr(Gender = Male, Dinning Choice = Rice)}{\Pr(Dinning Choice = Rice)} = \frac{0.25}{0.4} = \frac{5}{8}
+$$
+$$
+\Pr(Gender = Male|Dinning Choice = Rice) + \Pr(Gender = Female|Dinning Choice = Rice) = 1
+$$
+
+Let's restrict ourselves to discrete random variables $X$ and $Y$.
+
+- **Marginal Probability:** $\Pr(X=x)$ and $\Pr(Y=y)$.
+- **Joint Probability:** $\Pr(X=x,Y=y)$, i.e., the events $X=x$ and $Y=y$ happen simultaneously.
+    - Marginal probability of an event is obtained by *exhaustively* summing across joint probabilities with respect to other events, i.e.,
+    $$
+    \Pr(X=x)=\sum_{y}\Pr(X=x,Y=y)
+    $$
+    $$
+    \Pr(Y=y)=\sum_{x}\Pr(X=x,Y=y)
+    $$
+- **Conditional Probability:** $\Pr(X=x|Y=y)$ and $\Pr(Y=y|X=x)$ which are respectively computed as
+$$
+\Pr(X=x|Y=y)=\frac{\Pr(X=x,Y=y)}{\Pr(Y=y)}=\frac{\Pr(X=x,Y=y)}{\sum_{x}\Pr(X=x,Y=y)}
+$$
+$$
+\Pr(Y=y|X=x)=\frac{\Pr(X=x,Y=y)}{\Pr(X=x)}=\frac{\Pr(X=x,Y=y)}{\sum_{y}\Pr(X=x,Y=y)}
+$$
+
+Now we consider *continuous* random variables $X$ and $Y$.
+
+- Denote the *joint* PDF by $f_{X,Y}(x,y)$, and denote the domain for $X$ ($Y$) by $\mathbf{X}$ ($\mathbf{Y}$).
+- **Marginal Probability Density:**
+$$
+f_{X}(x) = \int_{y\in\mathbf{Y}} f_{X,Y}(x,y)dy
+$$
+$$
+f_{Y}(y) = \int_{x\in\mathbf{X}} f_{X,Y}(x,y)dx
+$$
+
+- **Conditional Density:** 
+$$
+f_{X}(x|Y=y)=\frac{f_{X,Y}(x,Y=y)}{f_{Y}(Y=y)}=\frac{f_{X,Y}(x,Y=y)}{\int_{x\in\mathbf{X}} f_{X,Y}(x,Y=y)dx}
+$$
+$$
+f_{Y}(y|X=x)=\frac{f_{X,Y}(X=x,y)}{f_{X}(X=x)}=\frac{f_{X,Y}(X=x,y)}{\int_{y\in\mathbf{Y}} f_{X,Y}(X=x,y)dy}
+$$
+
+- All are quite similar to the discrete case. But to really get the (cumulated) probability we need to perform yet another integration.
+    - Example 1: The CDF of the marginal distribution of $X$ is
+$$
+F_{X}\left(\overline{x}\right)=\int_{\underline{x}}^{\overline{x}}\int_{y\in\mathbf{Y}}f_{X,Y}\left(x,y\right)dydx
+$$
+
+    - Example 2: The CDF of the distribution of $X$ *conditional on* $Y=y$ is
+$$
+F_{X}\left(\overline{x}|Y=y\right)=\int_{\underline{x}}^{\overline{x}}f_{X}\left(x|Y=y\right)dx
+$$
+
+    - Example 3: Probability "sum" up to 1
+$$
+1 = \int_{x\in\mathbf{X}} \int_{y\in\mathbf{Y}} f_{X,Y}(x,y)dydx
+$$
+
+## Bivariate Normal Distribution
+
+- Univariate Normal Distribution: The pdf is given by 
+$$
+f\left(x\right)=\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^{2}}
+$$
+where $mu$ is the mean and $\sigma>0$ is the standard deviation.
+    - Usually we denote a Normal random variable by $X\sim N(\mu,\sigma^2)$.
+    - Linear Combination Property: If $X\sim N(\mu,\sigma^2)$, then $aX+b\sim N(a\mu+b,a^2\sigma^2)$.
+    - The Linear Combination Property implies that we can represent $X\sim N(\mu,\sigma^2)$ by letting $X=\sigma Z +\mu$ where $Z\sim N(0,1)$ is Standard Normal.
+    
+- Bivariate Normal Distribution: a normal distribution that involves in two potentially correlated random variables $X$ and $Y$.
+- PDF of bivariate normal:
+$$
+f_{X,Y}\left(x,y\right)=\frac{1}{2\pi\sigma_{X}\sigma_{Y}\sqrt{1-\rho^{2}}}e^{-\frac{\left(\frac{x-\mu_{X}}{\sigma_{X}}\right)^{2}-2\rho\left(\frac{x-\mu_{X}}{\sigma_{X}}\right)\left(\frac{y-\mu_{Y}}{\sigma_{Y}}\right)+\left(\frac{y-\mu_{Y}}{\sigma_{Y}}\right)^{2}}{2\left(1-\rho^{2}\right)}}
+$$
+where $\mu_{X}$, $\mu_{Y}$, $\sigma_{X}$ and $\sigma_{Y}$ are similar to univariate normal, and $\rho\in(-1,1)$ is the coefficient of correlation between $X$ and $Y$.
+    - In particular, $\rho=\frac{\sigma_{XY}}{\sigma_{X}\sigma_{Y}}$ where $\sigma_{XY}$ is the covariance between the random variables.
+- The **marginal** distributions of $X$ and $Y$ are respectively normal, i.e., $X\sim N(\mu_{X},\sigma_{X}^2)$ and $Y\sim N(\mu_{Y},\sigma_{Y}^2)$.
+- The **conditional** distributions are
+$$
+(X|Y=y)\sim N(\mu_{X}+\rho\frac{\sigma_{X}}{\sigma_{Y}}(y-\mu_{y}),\sigma_{X}^{2}(1-\rho^{2}))
+$$
+$$
+(Y|X=x)\sim N(\mu_{Y}+\rho\frac{\sigma_{Y}}{\sigma_{X}}(x-\mu_{Y}),\sigma_{Y}^{2}(1-\rho^{2}))
+$$
+
+
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(gridExtra)
+
+shinyApp(
+ui = fluidPage(
+sidebarLayout(
+sidebarPanel(
+sliderInput("s", "Sample Size", 100, min=1, max=5000),
+sliderInput("mu.x", "Mean of x", 0, min=-2, max=2),
+sliderInput("sd.x", "Standard Deviation of x", 1, min=0.001, max=3),
+sliderInput("mu.y", "Mean of y", 0, min=-2, max=2),
+sliderInput("sd.y", "Standard Deviation of y", 1, min=0.001, max=3),
+sliderInput("corr", "Coefficient of Correlation", 0, min=-0.999, max=0.999)
+),
+mainPanel(plotOutput("BivariateNormal",height=600))
+)
+),
+
+server = function(input,output) {
+  output$BivariateNormal = renderPlot({
+  s<-input$s
+  mu.x<-input$mu.x
+  sd.x<-input$sd.x
+  mu.y<-input$mu.y
+  sd.y<-input$sd.y
+  corr<-input$corr
+  
+  x<-rnorm(s,0,1)
+  y<-rnorm(s,0,1)
+  mu<-c(mu.x,mu.y)
+  SD<-cbind(c(sd.x,0),c(0,sd.y))
+  VC.std<-cbind(c(1,corr),c(corr,1))
+  ChL<-SD%*%t(chol(VC.std)) #Need to use the lower triangle matrix while R returns the upper one by default.
+  xbi<-t((ChL%*%rbind(x,y))+mu)
+  
+  p<-ggplot(data=data.frame(x=xbi[,1],y=xbi[,2]))
+joint<-p+geom_point(aes(x=x,y=y),shape=1,alpha=0.5,color="purple")+
+         theme(legend.position="none")+
+         xlim(c(-10,10))+ylim(c(-10,10))
+x.margin<-p+geom_histogram(aes(x=x,y=..density..),fill="blue",color="grey",alpha=0.6,bins=80)+
+         xlim(c(-10,10))
+y.margin<-p+geom_histogram(aes(x=y,y=..density..),fill="red",color="grey",alpha=0.6,bins=80)+
+         xlim(c(-10,10))+coord_flip()
+blank<-p+geom_blank(aes(1,1))+
+  theme(plot.background = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(), 
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.line = element_blank())
+
+grid.arrange(x.margin,blank,joint,y.margin,
+             ncol=2, nrow=2, widths=c(4, 2), heights=c(2, 4))
+})
+},
+options = list(width = "100%", height = 700)
+)
+```
+
+How to sample a Bivariate Normal Distribution?
+
+- Recall that in a univariate environment with $Z \sim N(0,1)$, we have $X=\sigma Z+\mu \sim N(\mu,\sigma^2)$. An analogous version of this property also holds in a bivariate environment.
+- Consider $X$ and $Y$ following a Bivariate Normal Distribution 
+$$
+\left[\begin{array}{c}
+X\\
+Y
+\end{array}\right]\sim N\left(\left[\begin{array}{c}
+\mu_{X}\\
+\mu_{Y}
+\end{array}\right],\left[\begin{array}{cc}
+\sigma_{X}^{2} & \sigma_{X}\sigma_{Y}\rho\\
+\sigma_{X}\sigma_{Y}\rho & \sigma_{Y}^{2}
+\end{array}\right]\right)
+$$
+- Let $\Sigma\equiv\left[\begin{array}{cc}\sigma_{X}^{2} & \sigma_{X}\sigma_{Y}\rho\\\sigma_{X}\sigma_{Y}\rho & \sigma_{Y}^{2}\end{array}\right]$ denote the variance-covariance matrix of this bivariate distribution, it is easily checked that
+$$
+\Sigma = \left[\begin{array}{cc}
+\sigma_{X} & 0\\
+0 & \sigma_{Y}
+\end{array}\right]\left[\begin{array}{cc}
+1 & \rho\\
+\rho & 1
+\end{array}\right]\left[\begin{array}{cc}
+\sigma_{X} & 0\\
+0 & \sigma_{Y}
+\end{array}\right]
+$$
+- Conceptually we can think of $\Sigma$ as the matrix version of variance, hence the "square-root" of $\Sigma$, can be think of as the standard deviation. Namely, 
+$$
+\Sigma = \left[\begin{array}{cc}
+\sigma_{X} & 0\\
+0 & \sigma_{Y}
+\end{array}\right] C C^{T} \left[\begin{array}{cc}
+\sigma_{X} & 0\\
+0 & \sigma_{Y}
+\end{array}\right]
+$$
+where the *lower triangle matrix* $C$ and its transpose matrix $C^{T}$ are such that 
+$$CC^{T}=\left[\begin{array}{cc}1 & \rho\\\rho & 1\end{array}\right]$$ 
+Then 
+$$S\equiv\left[\begin{array}{cc}\sigma_{X} & 0\\0 & \sigma_{Y}\end{array}\right] C$$ 
+is the "square-root of $\Sigma$" we want.
+
+- By Cholesky Decomposition, we have 
+$$
+C = \left[\begin{array}{cc}1 & 0\\\rho & \sqrt{1-\rho^{2}}\end{array}\right]
+$$
+
+- Theorem: Let $Z_{1}\sim N(0,1)$ and $Z_{2}\sim N(0,1)$ and are independent. We have 
+$$
+\left[\begin{array}{c}
+X\\
+Y
+\end{array}\right]\equiv\left[\begin{array}{cc}
+\sigma_{X} & 0\\
+0 & \sigma_{Y}
+\end{array}\right]\left[\begin{array}{cc}
+1 & 0\\
+\rho & \sqrt{1-\rho^{2}}
+\end{array}\right]\left[\begin{array}{c}
+Z_{1}\\
+Z_{2}
+\end{array}\right]+\left[\begin{array}{c}
+\mu_{X}\\
+\mu_{Y}
+\end{array}\right]\sim N\left(\left[\begin{array}{c}
+\mu_{X}\\
+\mu_{Y}
+\end{array}\right],\left[\begin{array}{cc}
+\sigma_{X}^{2} & \sigma_{X}\sigma_{Y}\rho\\
+\sigma_{X}\sigma_{Y}\rho & \sigma_{Y}^{2}
+\end{array}\right]\right)
+$$
+
+Procedure to draw from Bivariate Normal:
+
+1. Independently draw two vectors of equal length $N$ from standard normal $N(0,1)$. Let $\mathbf{z}_{1}|_{1\times N}$ and $\mathbf{z}_{2}|_{1\times N}$ be the vectors we drawn, and bind them into a 2-by-N matrix as 
+$$
+\mathbf{z}_{2\times N}\equiv\left[\begin{array}{c}
+\mathbf{z}_{1}|_{1\times N}\\
+\mathbf{z}_{2}|_{1\times N}
+\end{array}\right]\equiv\left[\begin{array}{cccc}
+z_{1,1} & z_{1,2} & ... & z_{1,N}\\
+z_{2,1} & z_{2,2} & ... & z_{2,N}
+\end{array}\right]
+$$
+2. Pick $\mu_{X}$, $\mu_{Y}$, $\sigma_{Y}$, $\sigma_{Y}$, and $\rho$ to your need. Then do the following matrix algebra in R
+$$
+\left[\begin{array}{cc}
+\sigma_{X} & 0\\
+0 & \sigma_{Y}
+\end{array}\right]\left[\begin{array}{cc}
+1 & 0\\
+\rho & \sqrt{1-\rho^{2}}
+\end{array}\right]\mathbf{z}_{2\times N}+\left[\begin{array}{c}
+\mu_{X}\\
+\mu_{Y}
+\end{array}\right]
+$$
+You will get a 2-by-N matrix, with the first row being the sample of $X$ and the second row being the sample of $Y$. Therefore, each column represents an observation $(x,y)$ and in total the sample size is N.
+
+### In-class Exercise
+1. Draw a sample of size 5000 from a bivariate normal distribution. You can choose whatever means, variances and coefficient of correlation.
+2. Compute the means, variances, and coefficient of correlation from the sample you just have drawn. Compare with the parameters you provided.
+
+## Gibbs Sampling
+
+- Sampling from Bivariate, and even Multivariate Normal is simple owing to the Linear Combination Property.
+    - For the bivariate case, we have a closed-form solution to the Cholesky Decomposition.
+    - For general multivariate cases, we simply construct the correlation matrix with diagonal elements being 1, and the off-diagonal elements being coefficients of correlation for each variable pair. Then we get $C$ by performing a Cholesky Decomposition with it using `chol()` and then take a transpose using `t()`.
+- What if the multivariate distribution is NOT normal? Need other ways around. **Gibbs Sampling** is a possible answer.
+- **Requirement:**
+1. Need to know the **conditional densities**. In a bivariate case, $f_{X}(x|Y=y)$ and $f_{Y}(y|X=x)$.
+2. The underlying distribution needs to be easy enough to work with.
+- **Procedure:**
+
+**Step 1.** Pick an arbitrary initial value $x_{0}$ and $y_{0}$.
+
+**Step 2.** Draw $y_{1}$ conditional on $x_{0}$ from the conditional density $f_{Y}(y|X=x_{0})$.
+
+**Step 3.** Draw $x_{1}$ conditional on $y_{1}$ from the conditional density $f_{X}(x|Y=y_{1})$.
+
+**Step 4.** Use $x_{1}$ and $y_{1}$ to repeat Steps 2 and 3 to obtain $x_{2}$ and $y_{2}$, so on and so forth until we draw enough of observations $(x,y)$.
+
+- Put it differently, in this procedure we first move along the y-axis, and then along the x-axis, and then repeat. The steps are thus 
+$$
+(x_{0},y_{0}) => (x_{0},y_{1}) => (x_{1},y_{1}) => (x_{1},y_{2}) => (x_{2},y_{2}) => ...
+$$
+and eventually we take $\{(x_{0},y_{0}),(x_{1},y_{1}),(x_{2},y_{2}),...\}$ as the output.
+
+
+Let's see it visually. Each point represents an observation we keep. The intermediate observations are not show, but can be seen from the path we travel.
+```{r, echo=FALSE, message=FALSE}
+shinyApp(
+ui = fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      numericInput("step", "Gibbs Step", 1, min=1, max=500, step=1, width = '200px'),
+      actionButton("btn", "Initialize Gibbs Sampling"),
+      sliderInput("x0", "Initial Guess for x", 0, min=-10, max=10, width = '200px'),
+      sliderInput("y0", "Initial Guess for x", 0, min=-10, max=10, width = '200px'),
+      sliderInput("mux", "Mean of x", 0, min=-5, max=5, width = '200px'),
+      sliderInput("sdx", "Standard Deviation of x", 1, min=0.001, max=5, width = '200px'),
+      sliderInput("muy", "Mean of y", 0, min=-5, max=5, width = '200px'),
+      sliderInput("sdy", "Standard Deviation of y", 1, min=0.001, max=5, width = '200px'),
+      sliderInput("rho", "Coefficient of Correlation", 0, min=-0.999, max=0.999, width = '200px')
+      ),
+    mainPanel(plotOutput("GibbsBiNorm",height=700))
+    )
+  ),
+
+server = function (input,output) {
+  dta <- eventReactive(input$btn, 
+    {
+      x0<-input$x0
+      y0<-input$y0
+      mux<-input$mux
+      sdx<-input$sdx
+      muy<-input$muy
+      sdy<-input$sdy
+      rho<-input$rho
+    
+      out<-data.frame(rep(1,5001),rep(1,5001))%>%'colnames<-'(c("x","y"))
+      out[1,]<-c(x0,y0) 
+      path<-data.frame()
+      for (i in 2:(nrow(out)-1)) {
+        out[i,2]<-rnorm(1,mean=(muy+rho*(sdy/sdx)*(out[i-1,1]-mux)),
+                      sd=sqrt((sdy^2)*(1-(rho^2))))
+        out[i,1]<-rnorm(1,mean=(mux+rho*(sdx/sdy)*(out[i,2]-muy)),
+                      sd=sqrt((sdx^2)*(1-(rho^2))))
+        tmp<-data.frame(rbind(c(out[i-1,1],out[i,2]),c(out[i,1],out[i,2])))
+        path<-rbind(path,tmp)
+        }
+      path<-rbind(c(x0,y0),path)%>%'colnames<-'(c("x.path","y.path"))
+      return(list(out,path))
+      }
+    )
+  
+  output$GibbsBiNorm = renderPlot({
+    step<-input$step
+    out<-dta()[[1]]  
+    path<-dta()[[2]]
+    
+    ggplot(data=out,aes(x=x,y=y))+
+      geom_point(shape=1,alpha=1,color="black")+
+      geom_path(data=path[1:step,],aes(x=x.path,y=y.path),color="red",alpha=1,
+            arrow=arrow(type="closed",angle=15,length=unit(x=0.03,units="npc")))
+    }
+    )
+  },
+options = list(width = "100%", height = 1000)
+)
+```
+
+**Discussions**
+There are several restrictions when using Gibb's Sampling.
+
+1. We take an initial *guess* which we thought to be the point where most of the density lies. But obviously good guesses don't happen everyday. The procedure involves in a lot of *traveling*, and you are likely to travel through unimportant regions. This traveling is prolonged if we start with a bad guess. In a more jargon way, this procedure is *auto-correlated* (the current point reached completely depends on the previous starting point as we have seen from the interactive figure). Such an auto-correlation goes away only when we have performed a good amount of drawn.
+
+The moral is, we should **not** use the observations obtained in the early steps of the procedure. For example, if we draw with Gibbs Sampling for $10^6$ observations, we may want to drop the very first $6\times10^3$ observations. This is so-called **burn-in**. But how much to drop, and how much to draw? It is an art......
+
+2. Gibbs Sampling can be trapped / fail to reach certain regions. Consider the two examples.
+
+    **Example 1:** The joint distribution of $(x,y)$ is defined on the rectangles $[1,2]\times[1,2]$ and $[-0.5,0]\times[-0.5,0]$. We can think of the density to be falling on two unconnected "islands". If we initiate a guess within, for example, $[1,2]\times[1,2]$, we will never be able to get to the other island.
+    
+    **Example 2:** The joint distribution of $(x,y)$ is defined on a rectangle $(0,10)\times(0,10)$ and at a point $(0,0)$. Suppose further that the distribution is atomistic such that the point $(0,0)$ happens by probability 0.9, and the rest of the probability is uniformly distributed on the rectangle. Gibbs Sampling is very likely to get stuck at point $(0,0)$. This two-dimensional case might not cause real problem as long as we perform a lot of draws. But in a high-dimensional case, say a 100 variable version of this distribution, Gibbs Sampling will certainly take astronomically many draws to really get a meaningful sample!
+    
+### Assignment
+
+1. Perform Gibbs Sampling to draw a sample of size 100000 from a Bivariate Normal Distribution. You are free to set $\mu_{x}$, $\mu_{y}$, $\sigma_{x}$, $\sigma_{y}$, and $\rho$. 
+
+You will need to use `for` loop to make the draw step-by-step. You may want to create a matrix / data.frame with 100000 rows, and replace the corresponding elements with your draw during the loop.
+
+2. Compute $\rho$ with the sample you have drawn and compare with your setting. Specifically, we want to find the *optimal burning-in* such that $diff\equiv|\rho_{computed} - \rho_{setting}|<10^{-6}$. You will need to setup a `while` loop that iterates up to 100000 times. In the first iteration you compute $\rho$ with the full sample, and in the second iteration you do the same with the first observation dropped, and so on. The iteration stops either when you run out of iteration, or when $diff$ becomes small enough upon $n$-th iteration. This $n$ is the number you want.
