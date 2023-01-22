@@ -166,15 +166,29 @@ ggplot(data=data.frame(x=num),aes(x)) +
 
 - Draw from a Uniform Distribution, plot it out with different sample sizes and parameters.
 ```{r, echo = FALSE}
-sliderInput("s", "Sample Size", 10, min = 1, max = 5000)
-sliderInput("rng", "Max and min", min = -5, max = 5, value = c(0,1))
-
-renderPlot({
-   num<-runif(n = input$s, min = input$rng[1], max = input$rng[2])
-  # draw the histogram with the specified number of bins
-  ggplot(data=data.frame(x=num),aes(x)) +
-   geom_histogram(binwidth=0.05,alpha=0.5,color="grey",fill="blue")
+shinyApp(
+  ui = fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        sliderInput("s", "Sample Size", 10, min = 1, max = 5000),
+        sliderInput("rng", "Max and min", min = -5, max = 5, value = c(0,1))
+      ),
+      mainPanel(
+        plotOutput("Uniform")
+      )
+    )
+  ),
+  server = function(input,output) {
+    output$Uniform = renderPlot({
+      num<-runif(n = input$s, min = input$rng[1], max = input$rng[2])
+      # draw the histogram with the specified number of bins
+      ggplot(data=data.frame(x=num),aes(x)) +
+        geom_histogram(binwidth=0.05,alpha=0.5,color="grey",fill="blue")+
+        xlim(c(-5,5))
 })
+  }
+)
+
 ```
 
 
@@ -197,16 +211,28 @@ num
 
 - Try out sample sizes, mean and sd.
 ```{r, echo = FALSE}
-sliderInput("sn", "Sample Size", 10, min = 1, max = 5000)
-sliderInput("mu", "Mean", 0, min = -10, max = 10)
-sliderInput("sigma", "SD", 1, min = 0, max = 10)
-
-renderPlot({
-   num<-rnorm(n = input$sn, mean = input$mu, sd = input$sigma)
-  # draw the histogram with the specified number of bins
-  ggplot(data=data.frame(x=num),aes(x)) +
-   geom_histogram(bins=100,alpha=0.5,color="grey",fill="blue")
+shinyApp(
+  ui = fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        sliderInput("sn", "Sample Size", 10, min = 1, max = 5000),
+        sliderInput("mu", "Mean", 0, min = -2, max = 2),
+        sliderInput("sigma", "SD", 1, min = 0, max = 3)
+        ),
+      mainPanel(plotOutput("Normal"))
+      ),
+    ),
+  
+  server = function(input,output) {
+    output$Normal = renderPlot({
+      num<-rnorm(n = input$sn, mean = input$mu, sd = input$sigma)
+      # draw the histogram with the specified number of bins
+      ggplot(data=data.frame(x=num),aes(x))+
+        geom_histogram(bins=100,alpha=0.5,color="grey",fill="blue")+
+        xlim(c(-10,10))
 })
+  }
+)
 ```
 
 ## Random Seed and RNG
@@ -487,16 +513,29 @@ ggplot(data=data.frame(x=c(0,10)),aes(x)) +
 
 - Demonstrate that the probability from Weibull is still uniform.
 ```{r, echo = FALSE}
-sliderInput("size", "Sample Size", 10, min = 1, max = 5000)
-sliderInput("k", "Shape", 1, min = 0.001, max = 5)
-sliderInput("lambda", "Scale", 1, min = 0.001, max = 5)
+shinyApp(
+  ui = fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        sliderInput("size", "Sample Size", 10, min = 1, max = 5000),
+        sliderInput("k", "Shape", 1, min = 0.001, max = 5),
+        sliderInput("lambda", "Scale", 1, min = 0.001, max = 5)
+      ),
+      mainPanel(
+        plotOutput("WeibulltoUnif")
+      )
+    )
+  ),
+  server = function(input,output) {
+    output$WeibulltoUnif = renderPlot({
+      dwb<-rweibull(n=input$size,shape=input$k,scale=input$lambda)
+      pwb<-pweibull(q=dwb,shape=input$k,scale=input$lambda)
+      ggplot(data=data.frame(x=pwb),aes(x)) +
+        geom_histogram(bins=100,alpha=0.5,color="grey",fill="blue")
+      })
+  }
+)
 
-renderPlot({
-   dwb<-rweibull(n=input$size,shape=input$k,scale=input$lambda)
-   pwb<-pweibull(q=dwb,shape=input$k,scale=input$lambda)
-  ggplot(data=data.frame(x=pwb),aes(x)) +
-   geom_histogram(bins=100,alpha=0.5,color="grey",fill="blue")
-})
 ```
 
 - The PIT theorem allows us to generate random numbers from a continuous distribution using draws from $U[0,1]$, provided that we know the *quantile function* of the concerned distribution.
@@ -539,27 +578,42 @@ ggplot(data=df) +
 
 - End this chapter by generating Frechet sample and pdf under different settings.
 ```{r, echo = FALSE, message = FALSE}
-sliderInput("s.size", "Sample Size", 100, min = 0, max = 10000)
-sliderInput("a","Tail Index", 2, min = 0.001, max = 5)
-sliderInput("scl","Scale Parameter",1,min=0.001,max=5)
-sliderInput("m","Location Parameter",0,min=-5,max=5)
+shinyApp(
+  ui = fluidPage(
+    sidebarLayout(
+      sidebarPanel(
+        sliderInput("s.size", "Sample Size", 100, min = 0, max = 10000),
+        sliderInput("a","Tail Index", 2, min = 0.001, max = 3),
+        sliderInput("scl","Scale Parameter",1,min=0.001,max=5),
+        sliderInput("m","Location Parameter",0,min=-5,max=5),
+        sliderInput("yub","Y-axis bound",1.5,min = 1, max = 5,step=0.25)
+      ),
+      mainPanel(
+        plotOutput("Weibull")
+      )
+    )
+  ),
+  server = function(input,output) {
+    output$Weibull = renderPlot({
+      a<-input$a
+      m<-input$m
+      sk<-input$scl
+      pdrw<-runif(input$s.size,0,1)
+      x.frechet<-sk*((-1/log(pdrw))^(1/a))+m
+      frechet.pdf<-function(x) {(a/sk)*(((x-m)/sk)^(-a-1))*exp(-(((x-m)/sk)^(-a)))}
+      
+      df<-data.frame(x=x.frechet)
+      
+      ggplot(data=df)+
+        geom_histogram(aes(x=x,y=..density..),bins=100,
+                       alpha=0.5,fill="blue",color="grey",position="identity")+
+        geom_function(fun=frechet.pdf,data=data.frame(seq(m,10,0.0025)),size=1.5)+
+        xlim(c(m,10))+ylim(c(0,input$yub))
+      })
+  },
+  options = list(width = "100%", height = 600)
+)
 
-renderPlot({
-  a<-input$a
-  m<-input$m
-  sk<-input$scl
-  pdrw<-runif(input$s.size,0,1)
-  x.frechet<-sk*((-1/log(pdrw))^(1/a))+m
-  frechet.pdf<-function(x) {(a/sk)*(((x-m)/sk)^(-a-1))*exp(-(((x-m)/sk)^(-a)))}
-  
-  df<-data.frame(x=x.frechet)
-  
-  ggplot(data=df)+
-    geom_histogram(aes(x=x,y=..density..),
-                   bins=100,alpha=0.5,fill="blue",color="grey",position="identity")+
-    geom_function(fun=frechet.pdf, 
-                  data=data.frame(seq(m,10,0.0025)),size=1.5)+xlim(c(m,10))+ylim(c(0,1.5))
-})
 ```
 
 ## Assignments

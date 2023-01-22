@@ -158,6 +158,7 @@ mainPanel(plotOutput("BivariateNormal",height=600))
 
 server = function(input,output) {
   output$BivariateNormal = renderPlot({
+  set.seed(65535)
   s<-input$s
   mu.x<-input$mu.x
   sd.x<-input$sd.x
@@ -165,8 +166,9 @@ server = function(input,output) {
   sd.y<-input$sd.y
   corr<-input$corr
   
-  x<-rnorm(s,0,1)
-  y<-rnorm(s,0,1)
+  rn<-rnorm(2*s,0,1)
+  x<-rn[c(1:s)]
+  y<-rn[-c(1:s)]
   mu<-c(mu.x,mu.y)
   SD<-cbind(c(sd.x,0),c(0,sd.y))
   VC.std<-cbind(c(1,corr),c(corr,1))
