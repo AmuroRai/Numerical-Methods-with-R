@@ -457,8 +457,6 @@ sliderInput("p", "Probability", 0.5, min = 0.001, max = 0.999)
 renderPlot({
   qx<-qnorm(input$p,0,1)
   den<-dnorm(qx,0,1)
-  x.dom<-seq(-4,qx,0.025)
-  y.pdf<-dnorm(x.dom,0,1)
   
   ppdf<-ggplot(data = data.frame(x = c(-4, 4)), aes(x)) +
     stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1))+
