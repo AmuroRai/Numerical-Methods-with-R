@@ -462,12 +462,12 @@ renderPlot({
   
   ppdf<-ggplot(data = data.frame(x = c(-4, 4)), aes(x)) +
     stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1))+
+    stat_function(fun=dnorm, n=101, args=list(mean = 0, sd = 1),
+                  geom="area",xlim=c(-4,qx),fill="blue",alpha=0.2)+
     ylab("density")+
     geom_point(aes(x=qx,y=den))+
     geom_segment(aes(x=qx,xend=qx,y=0,yend=den),linetype=3)+
     geom_segment(aes(x=-4,xend=qx,y=den,yend=den),linetype=3)+
-    geom_ribbon(data=data.frame(x=x.dom,ymin=rep(0,length(x.dom)),ymax=y.pdf),
-                aes(x=x.dom,ymin=ymin,ymax=y.pdf),fill="blue",alpha=0.2,inherit.aes = FALSE)+
     geom_text(aes(x=qx,y=den,label=
                     paste("x = ",round(qx,digits=4),", f(x) = ",round(den,digits=4))),
               vjust=-0.1,hjust=-0.1)+
@@ -556,6 +556,7 @@ $$
 x=F^{-1}(x)=	s\left(-\frac{1}{\ln p}\right)^{\frac{1}{\alpha}}+m
 $$
 where $\alpha>0$ is the tail index, $s>0$ is the scale parameter, and $m\in(-\infty,\infty)$ is the location parameter.
+
 - For $x$ following a Frechet distribution with $m=0$, its inverse $y=1/x$ follows a Weibull distribution with shape parameter $\lambda\equiv\alpha$ and scale parameter $k\equiv1/s$. See Wikipedia: https://en.wikipedia.org/wiki/Fr%C3%A9chet_distribution
 
 - Since R has a built-in Weibull distribution, we can check if the PIT approach is consistent. 
