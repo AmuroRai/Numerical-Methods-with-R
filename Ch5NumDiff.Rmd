@@ -200,7 +200,7 @@ $$
 
 - By definition of derivative, $h$ needs to be arbitrarily small. Intuitively you might want to try out setting $h=10^{-100}$.
 - But we are working on a computer, on which *real numbers* are approximated by *float numbers*. Thus we have a precision issue. The **machine epsilon** on R (and most of the programming languages) is $2^{-52}$ (falls somewhere between $10^{-16}$ and $10^{-15}$).
-    - Machine epsilon is a number, such that all numbers $x$ equal or less than it are treated as 0 in the sense that $1+x=1$. In a sloppy way, you can think that machine epsilon is too small to be meaningful hence can be treated as 0.
+    - Machine epsilon is a number, such that all numbers $x$ less than it are treated as 0 in the sense that $1+x=1$. In a sloppy way, you can think that machine epsilon determines whether a number is too small to be meaningful hence can be treated as 0.
     - We can access R's machine epsilon using `.Machine$double.eps`.
     - The command `.Machine` returns a very long list that shows that precision and rounding setting on the current system. Use `?.Machine` for details.
     
