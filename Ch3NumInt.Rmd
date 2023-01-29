@@ -1,12 +1,56 @@
 ---
 title: "Numerical Integration: Quadrature Approach"
+author: "Ivan Yi-Fan Chen"
+date: "2023 Fall"
 output:
   html_document:
     df_print: paged
-fontsize: 14 pt
-spacing: double
 runtime: shiny
 ---
+
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 16px;
+      line-height: 2;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 20px;
+  color: DarkBlue;
+}
+h4.author { /* Header 4 */
+  font-size: 22px;
+  color: Black;
+}
+h4.date { /* Header 4 */
+  font-size: 22px;
+  color: Black;
+}
+code.r{ /* Code block */
+    font-size: 16px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 16px;
+    line-height: 1.5
+}
+</style>
+
 
 # Preliminaries for R
 
@@ -337,7 +381,9 @@ server = function(input,output) {
 )
 ```
 
-**In-class Exercise:** Implement the Midpoint with R. Refer to the code for Forward Rectangular Rule. The key idea is that you need to figure out how to get all the $n$ midpoints. If possible, wrap it into a function.
+### In-class Exercise
+
+Implement the Midpoint with R. Refer to the code for Forward Rectangular Rule. The key idea is that you need to figure out how to get all the $n$ midpoints. If possible, wrap it into a function.
 
 ## Trapezoidal Rule
 
@@ -390,7 +436,9 @@ server = function(input,output) {
 )
 ```
 
-**In-class Exercise:** Implement the Trapezoidal with R. Refer to the code for Forward Rectangular Rule. The key is that you need to *shift* the evaluated function. For example, if you have 2 segments hence 3 endpoints `x<-c(x1,x2,x3)`, then `y<-intfun(x)` gives you `c(y1,y2,y3)`. You need to compute `c(y1+y2,y2+y3)` for the trapezoidal regions, which can be done with vector indices `[]`.
+### In-class Exercise
+
+Implement the Trapezoidal with R. Refer to the code for Forward Rectangular Rule. The key is that you need to *shift* the evaluated function. For example, if you have 2 segments hence 3 endpoints `x<-c(x1,x2,x3)`, then `y<-intfun(x)` gives you `c(y1,y2,y3)`. You need to compute `c(y1+y2,y2+y3)` for the trapezoidal regions, which can be done with vector indices `[]`.
 
 ## Simpson's Rule
 
@@ -572,6 +620,7 @@ cont<-0 #counting for consecutively "small" (err less than tol in a row).
 Ntol<-1000 #Criteria to count as consecutively small.
 
 n<-2 #Set number of iteration (hence the inverse of step size)
+NStop<-10000 #Need to set up a maximum amount of iteration to avoid infinite loops.
 
 #Keep going if the errors are not consecutively small in a row. See how we construct cont later.
 while (cont<=Ntol) { 
@@ -587,13 +636,13 @@ while (cont<=Ntol) {
   }
   
   #Stop iteration if consecutively small happen in a row.
-  if (cont==1000) {
-    print("Converged with err < tol for consecutively 1000 times.")
+  if (cont==Ntol) {
+    cat("Converged with err < tol for consecutively ",Ntol," times.")
     break
     }
   
-  if(n==10000) {
-    print("Do not converge to true value after 5000 of iteration.")
+  if(n==NStop) {
+    cat("Do not converge to true value after ",NStop," times of iteration.")
     break
   }
   
@@ -603,8 +652,8 @@ while (cont<=Ntol) {
 }
 
 #n is the number of iteration, and the N we want is exactly n-Ntol.
-if (cont==1000) {
-  cat("Number of iterations: ",n,"; Converged when n = ",n-Ntol)
+if (cont==Ntol) {
+  cat("Number of iterations = ",n,"; Converged when n = ",n-Ntol)
 }
 ```
 
@@ -986,10 +1035,15 @@ and then do it with Gauss-Laguerre.
 - A refinement to improve the convergence of numerical integration, especially for functions that are difficult to integrate, e.g., functions defined on (0,1) but with vertical asymptotes / singularities at both endpoints.
 
 - General work flow:
+
     Step 1. Do numerical integration on the interval of interest $[a,b]$.
+
     Step 2. Check the approximation error.
+
     Step 3. If the error is higher than the tolerance level $\epsilon$, then divide the interval $[a,b]$ into two subintervals $[a,c]$ and $[c,b]$. Otherwise stop.
+
     Step 4. For each subinterval, repeat Steps 1 to 3 until all the numerical integration are converged (error less than $\epsilon$) in all subintervals.
+
     Step 5. Sum up the results and report.
     
 - For Gaussian Quadratures, the errors are in practice measured by the difference between results from $n$ Gaussian nodes and $n$ Gaussian plus $2n+1$ Konrod nodes.

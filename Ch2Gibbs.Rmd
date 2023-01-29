@@ -1,12 +1,56 @@
 ---
 title: "Multivariate Distributions and Gibbs Sampling"
+author: "Ivan Yi-Fan Chen"
+date: "2023 Fall"
 output:
   html_document:
     df_print: paged
-fontsize: 14 pt
-spacing: double
 runtime: shiny
 ---
+
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 16px;
+      line-height: 2;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 20px;
+  color: DarkBlue;
+}
+h4.author { /* Header 4 */
+  font-size: 22px;
+  color: Black;
+}
+h4.date { /* Header 4 */
+  font-size: 22px;
+  color: Black;
+}
+code.r{ /* Code block */
+    font-size: 16px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 16px;
+    line-height: 1.5
+}
+</style>
+
 
 # Review of Joint, Marginal, and Conditional Distributions
 - Start with a simple superficial example: Dining Choice v.s. Gender
@@ -35,18 +79,22 @@ knitr::kable(dta)
 - So what is the probability that a female student is going to have noodle for lunch?
     - This is exactly a conditional probability:
     $$
-    \Pr(Dinning Choice = Noodle|Gender = Female) = \frac{\Pr(Dinning Choice = Noodle, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.35}{0.55}=\frac{7}{11}
+    \Pr(Choice = Noodle|Gender = Female) = \frac{\Pr(Choice = Noodle, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.35}{0.55}=\frac{7}{11}
     $$
     - In fact,
     $$
-    \Pr(Dinning Choice = Rice|Gender = Female) = \frac{\Pr(Dinning Choice = Rice, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.15}{0.55}=\frac{3}{11}
+    \Pr(Choice = Rice|Gender = Female) = \frac{\Pr(Choice = Rice, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.15}{0.55}=\frac{3}{11}
     $$
     $$
-    \Pr(Dinning Choice = Burger|Gender = Female) = \frac{\Pr(Dinning Choice = Burger, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.05}{0.55}=\frac{1}{11}
+    \Pr(Choice = Burger|Gender = Female) = \frac{\Pr(Choice = Burger, Gender = Female)}{\Pr(Gender = Female)} = \frac{0.05}{0.55}=\frac{1}{11}
     $$
-    $$
-    \Pr(Choice = Noodle|Gender = Female)+\Pr(Choice = Rice|Gender = Female)+\Pr(Choice = Burger|Gender = Female)=1
-    $$
+    
+$$
+\begin{array}{cc}
+\Pr(Choice=Noodle|Gender=Female)+\Pr(Choice=Rice|Gender=Female)\\
++\Pr(Choice=Burger|Gender=Female) & =1
+\end{array}
+$$
 - Similarly, the probability that the student is male if the student have rice is also a conditional probability:
 $$
 \Pr(Gender = Male|Dinning Choice = Rice) = \frac{\Pr(Gender = Male, Dinning Choice = Rice)}{\Pr(Dinning Choice = Rice)} = \frac{0.25}{0.4} = \frac{5}{8}
@@ -396,7 +444,7 @@ server = function (input,output) {
     }
     )
   },
-options = list(width = "100%", height = 1000)
+options = list(width = "100%", height = 900)
 )
 ```
 

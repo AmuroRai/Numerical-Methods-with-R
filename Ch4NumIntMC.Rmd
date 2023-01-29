@@ -5,10 +5,51 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
-fontsize: 14 pt
-spacing: double
 runtime: shiny
 ---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 16px;
+      line-height: 2;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 20px;
+  color: DarkBlue;
+}
+h4.author { /* Header 4 */
+  font-size: 22px;
+  color: Black;
+}
+h4.date { /* Header 4 */
+  font-size: 22px;
+  color: Black;
+}
+code.r{ /* Code block */
+    font-size: 16px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 16px;
+    line-height: 1.5
+}
+</style>
+
 
 # Monte Carlo Integration
 
@@ -145,7 +186,9 @@ $$
 - Still informative to introduce **Kolmogorov's Law of Large Number**: as long as ${x_i}$ is drawn **independently** from an **identical distribution**, then $\sum_{i=1}^{n}\frac{f(x_i)}{n}$ converges to $E(f(x))$ **with probability 1**. This is almost always true in this course since we always do random draw from a given distribution.
 - ***Monte Carlo Integration always converges as a result of Strong Law of Large Number (Kolmogorov, in our case).***
 
-- **In-Class Exercise:** Perform Monte Carlo Integration for $\int^{1}_{0}x^{3}dx$ with a random vector of length 500 drawn from $U[0,1]$.
+### In-Class Exercise
+
+Perform Monte Carlo Integration for $\int^{1}_{0}x^{3}dx$ with a random vector of length 500 drawn from $U[0,1]$.
 
 ## Extension to Infinite Intervals
 
@@ -493,7 +536,9 @@ ggplot(data=df,aes(x=i,y=value,color=Method))+
   ylim(c(3.5,5.2))
 ```
 
-- **In-class Exercise:** Consider the integration problem
+### In-Class Exercise
+
+Consider the integration problem
 $$
 \int^{20}_{2}\frac{1}{1+x}dx
 $$
@@ -615,8 +660,9 @@ c(val.int3,val.gl,val.hlt,val.mc)%>%'names<-'(c("int3","Gauss-Legendre","Halton"
         - Typically we use WIOD so that there are about 60 countries plus a "rest of the world". Then the *bilateral trade costs* are country-pair-direction specific, e.g., Taiwan's export cost to USA is different from that of importing from USA. Then we have a 60-by-60 matrix of trade cost parameter for both types of trade costs. 
         - We also have multiple sectors, typically 20 if we follow ISIC to some good extent. There are input-output linkages between these sectors (a sector's input intensities of materials from different sectors). So another 20-by-20 matrix. What's worse, this matrix is oftentimes **country-specific** so we have 60 of this kind of matrix in total.
         - We have other parameters, like TFP (country-time-specific), depreciation rate, preference parameters, and even migration elasticity that is location-sector-skill-specific.
-        - If you are asked to compute the welfare of a country in the economy by a change in a specific trade cost, then you are going to change all of the endogenous variables through general equilibrium, meaning that you will be doing a high-dimensional integration!
+        - If you are asked to compute the welfare gains from trade by a trade agreement that involves in multiple countries, then you will need to integrate over the bilateral trade costs of the relevant countries. It is high-dimensional, and it is tough to compute since changes in these costs entail general equilibrium effect that also alters endogenous allocations in this global economy!
         - Monte Carlo and Quasi Monte Carlo are your only way out.
+        - Otherwise try to make specific modeling assumptions so that the welfare formula takes a CES form. This is the approach of the quantitative models based on Eaton Kortum (2002) and Caliendo and Parro (2015).
 
 ## Kronecker Product
 
@@ -730,7 +776,9 @@ proc.time() - ptm #Stop timer and show proc.time. Much longer than Kronecker!
 rs.kron==rs.loop
 ```
 
-- **In-class exercise:** Try out the following 5-dimensional integration
+### In-Class Exercise
+
+Try out the following 5-dimensional integration
 $$
 \int^{1}_{0}\int^{1}_{0}\int^{1}_{0}\int^{1}_{0}\int^{1}_{0}(\frac{1}{1+x}+\sqrt{y}+2z^3+\sqrt{2p}+q^{\frac{1}{3}})\ dx\ dy\ dz\ dp\ dq
 $$
@@ -756,6 +804,8 @@ where $k=1.56$ and $s=1.667$. Your missions are as follows:
     2d. If the integration technique does not work out, plot out the result for all of your iterations to visually tell if there are signs of convergence.
 
 # Reference
+- Caliendo, Lorenzo, and Fernando Parro (2015), "Estimates of the Trade and Welfare Effects of NAFTA," *Review of Economic Studies*, 82, 1-44.
+- Eaton, Jonathan, and Samuel Kortum (2002), "Technology, Geography, and Trade," *Econometrica*, 70, 1741-1779.
 - Faure, Henri, and Christiane Lemieux (2009), "Generalized Halton Sequences in 2008: A Comparative Study," *ACM Transactions on Modeling and Computer Simulation (TOMACS)*, 19, 1-31.
 - Greene, William, H. (2008), *Econometric Analysis* 6th ed., Pearson.
 - Rossi, Peter E., Greg M. Allenby, and Robert McCulloch (2005), *Bayesian Statistics and Marketing*, John Wiley & Sons.
