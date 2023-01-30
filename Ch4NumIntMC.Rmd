@@ -440,7 +440,7 @@ sidebarPanel(
                c("2"=1, "3"=2, "5"=3, "7"=4, "11"=5, "47"=15), width = '300px'),
   radioButtons("by", "Base for Y-series", 
                c("2"=1, "3"=2, "5"=3, "7"=4, "11"=5, "47"=15), width = '300px'),
-  numericInput("it", "i-th Observation", 1, min=1, max=300, step=1, width = '300px')
+  numericInput("it", "i-th Observation", 1, min=1, max=400, step=1, width = '300px')
 ),
 mainPanel(plotOutput("GHalton"))
 )
@@ -452,14 +452,19 @@ server = function(input,output) {
     bx<-as.numeric(input$bx)
     by<-as.numeric(input$by)
     i<-input$it
-    if(i>300) {i<-300} else if (i<1) {i<-1} else if (is.na(i)) {i<-1}
-    hlt<-halton(300,15)
-    ghlt<-ghalton(300,5)[,c(4,5)] #keep only column 4 and 5
-    rnd<-matrix(runif(600,0,1),300,2)
+    if(i>400) {i<-400} else if (i<1) {i<-1} else if (is.na(i)) {i<-1}
+    hlt<-halton(400,15)
+    ghlt<-ghalton(400,5)[,c(4,5)] #keep only column 4 and 5
+    rnd<-matrix(runif(800,0,1),400,2)
+    g<-seq(0,1,length.out=20)
+    k<-rep(1,20)
+    grd<-cbind(g%x%k,rep(g,20))
+    
     
     df<-data.frame(x.hlt=hlt[1:i,bx],y.hlt=hlt[1:i,by],
                    x.ghlt=ghlt[1:i,1],y.ghlt=ghlt[1:i,2],
-                   x.rnd=rnd[1:i,1],y.rnd=rnd[1:i,2])
+                   x.rnd=rnd[1:i,1],y.rnd=rnd[1:i,2],
+                   x.grd=grd[1:400,1],y.grd=grd[1:400,2])
     
     p<-ggplot(data=df)
     
@@ -469,21 +474,10 @@ server = function(input,output) {
           xlim(c(0,1))+ylim(c(0,1))+labs(title="Halton",x="",y="")
     pghlt<-p+geom_point(aes(x=x.ghlt,y=y.ghlt),size=3,color="red")+
           xlim(c(0,1))+ylim(c(0,1))+labs(title="Generalized Halton",x="",y="")
+    pgrd<-p+geom_point(aes(x=x.grd,y=y.grd),size=3,color="dark green")+
+          xlim(c(0,1))+ylim(c(0,1))+labs(title="Grid",x="",y="")
     
-    blank<-p+geom_blank(aes(1,1))+
-        theme(plot.background = element_blank(), 
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), 
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.x = element_blank(), 
-        axis.text.y = element_blank(),
-        axis.ticks = element_blank(),
-        axis.line = element_blank())
-    
-    grid.arrange(prnd,blank,phlt,pghlt,
+    grid.arrange(prnd,pgrd,phlt,pghlt,
              ncol=2, nrow=2, widths=c(4, 4), heights=c(4, 4))
 })
 },
@@ -784,6 +778,15 @@ $$
 \int^{1}_{0}\int^{1}_{0}\int^{1}_{0}\int^{1}_{0}\int^{1}_{0}(\frac{1}{1+x}+\sqrt{y}+2z^3+\sqrt{2p}+q^{\frac{1}{3}})\ dx\ dy\ dz\ dp\ dq
 $$
 Specifically, do it using Gauss-Legendre, Monte Carlo, and Halton Monte Carlo. For Gauss-Legendre, use 30 nodes for each dimension so that we have 24300000 nodes in total in the 5-d grid. For other approaches, draw sequences of 24300000 points for each dimension.
+
+# Concluding Remarks
+
+1. We have learned about rules based on Riemann Sum, Gaussian Quadrature, Adaptive Quadrature, and Monte Carlo to perform numerical integration.
+2. The Riemann-Sum-based rules can be easily implemented manually, but cannot deal with functions with singularities on the interval.
+3. Gaussian Quadrature is easy to implement with certain packages, and can handle infinite interval and singularities. It is also fast and accurate for 1-D problems if we choose the right rule to use. But it is computationally expensive for high-dimension problems.
+4. Monte Carlo is very easy to implement, and suitable for high-dimension problems since its convergence rate is dimension-independent. But at lower dimensions the convergence is slow and inefficient. One might want to turn to Quasi Monte Carlo.
+5. Integration near singularity can pose a challenge to both Gaussian Quadrature and Monte Carlo. At lower dimensions, one could use Adaptive Quadrature. One could also perform Monte Carlo using Importance Sampling.
+6. In short, Monte Carlo is more suitable for higher dimension problems while Gaussian Quadrature works better for lower dimension problems. For neighborhoods difficult to integrate, try Adaptive Quadrature or Monte Carlo plus Importance Sampling.
     
 # Assignment
 This assignment is going to be challenging, and can worth a whole class for discussion. Consider the following function defined on $r\in(0,1)$:
