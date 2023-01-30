@@ -155,7 +155,8 @@ seq(from=1, to=3.6)
 seq(from=1, to=3.6, by=0.5)
 ```
 
-- One may use `length.out` instead of `by` occasionally.
+- Using `by` can cause missing out of endpoints. In the previous example the endpoint 3.6 is missed out if we set `by=0.5`.
+- Use `length.out` instead of `by` to prevent this issue, provided that `length.out >= 2`.
 ```{r}
 #Generate a sequence from 1 to 3.6, but with a vector of length 1 (1 element only)
 #Gives you 1.
@@ -266,7 +267,7 @@ server = function(input,output) {
 )
 ```
 
-- Implementation with R.
+- Implementation with R. Note that we use `length.out` instead of `by`. Why so?
 ```{r, message=FALSE}
 n.fr<-20 #number of endpoints, needs to be integer greater than 2.
 x.fr<-seq(2,20,length.out=n.fr) #nodes x_i
@@ -283,17 +284,18 @@ err.fr
 
 - The above is just a one time coding. We may want to wrap it into a **function** that can do definite integral for an **arbitrary equation** on an **arbitrary interval**. This is easily done as follows:
 ```{r, error=TRUE}
-#Denote a function by `funct`, lower and upper bounds by `lb` and `ub`, and step size by `s`
-myFwdRec<-function(funct, lb, ub, s, ...) { #use ... to pass other inputs needed by funct
+#Denote a function by `funct`, lower and upper bounds by `lb` and `ub`, and number of intervals `n``
+myFwdRec<-function(funct, lb, ub, n, ...) { #use ... to pass other inputs needed by funct
   if (is.function(funct)==F) {
     stop("funct needs to be a function") #Check if funct is a function. If not, show error and quit.
   } else if (!is.finite(lb)||!is.finite(ub)) { #Note that need to use `||` instead of `|` for logical purpose.
     stop("Infinite interval.") #Error and quit if boundaries are not finite.
-  } else if (s>(ub-lb)) {
-    stop("Step size exceeds the range of interval.") #Step size cannot be larger than the interval.
+  } else if (n<=0) {
+    stop("Invalid interval number") #n must be strictly positive.
   } else {
-    x<-seq(from=lb, to=ub, by=s)
-    n<-length(x)-1 #number of intervals
+    n<-as.integer(n) #Force n into an integer if a real number is provided.
+    x<-seq(from=lb, to=ub, length.out=(n+1)) #Get nodes
+    s<-x[2]-x[1] #Get step size.
     y<-funct(x, ...)[1:n] #The last node will not be used. Also pass other inputs needed.
     if (sum(!is.finite(y))!=0) { #If so, then funct(x) involves in Inf at some x, e.g., 1/x at x=0.
       stop("Singularity encountered.") #We cannot handle this case, so error and quit.
@@ -306,27 +308,27 @@ myFwdRec<-function(funct, lb, ub, s, ...) { #use ... to pass other inputs needed
 
 #Try a single input function
 exfunc<-function(x) {5-x}
-myFwdRec(funct=exfunc, lb=0, ub=6, s=0.05) #True value is 12.
+myFwdRec(funct=exfunc, lb=0, ub=6, n=100) #True value is 12.
 
 #Can also write functions in myFwdRec directly. Come in handy when funct is not too complicated.
-myFwdRec(funct = function(x) {5-x}, lb=0, ub=6, s=0.05)
+myFwdRec(funct = function(x) {5-x}, lb=0, ub=6, n=100)
 
 #Try a function with multiple inputs
 exfunc<-function(x,y,z) {5*y-x+z}
-myFwdRec(funct=exfunc, lb=0, ub=6, s=0.05, y=1, z=2) #True value is 24.
+myFwdRec(funct=exfunc, lb=0, ub=6, n=100, y=1, z=2) #True value is 24.
 
 #Try a non-function object
 t<-3
-myFwdRec(funct=t, lb=0, ub=6, s=0.05) 
+myFwdRec(funct=t, lb=0, ub=6, n=100) 
 
 #Try infinite boundary
-myFwdRec(funct=function(x) {1+x}, lb=0, ub=Inf, s=0.05)
+myFwdRec(funct=function(x) {1+x}, lb=0, ub=Inf, n=100)
 
 #Try steps too large
-myFwdRec(funct=function(x){1+x}, lb=0, ub=3, s=5)
+myFwdRec(funct=function(x){1+x}, lb=0, ub=3, n=100)
 
 #Try singularity, say 1/x at x=0
-myFwdRec(funct=function(x){1/x}, lb=0, ub=1, s=0.05)
+myFwdRec(funct=function(x){1/x}, lb=0, ub=1, n=100)
 ```
 
 - Trying to make customized functions is highly recommended. 
@@ -607,26 +609,28 @@ $$
     - This idea is exactly the numerical counter part of **divergence**, i.e., $\lim_{n\rightarrow \infty}f(x)=\infty$.
     
 - Demonstrate using the Forward Rectangular Rule because we have a function for it already. (See? No need to copy-paste. Just call it!) 
-    - Note that in the customized function we choose *step size* instead of *number of interval* because it is how we coded it. But **reducing the step size for each iteration is conceptually the same as increasing the number of intervals**.
 
 ```{r, error=TRUE}
 
 tol<-10^(-4) #use 1e-4 as the tolerance level (what we called to be small).
 #This is rather large, but I have spent a whole night trying to have it converge at 1e-6 level but to no avail...... Anyway this is just for demonstration so we are fine.
-err<-abs(myFwdRec(funct=intfun, lb=2, ub=20, s=1)-log(7)) #Define error size.
-#We start from when the step size is 1.
+err<-abs(myFwdRec(funct=intfun, lb=2, ub=20, n=1)-log(7)) #Define error size.
+#Set number of interval `n=1` for illustration.
 
 cont<-0 #counting for consecutively "small" (err less than tol in a row).
 Ntol<-1000 #Criteria to count as consecutively small.
 
-n<-2 #Set number of iteration (hence the inverse of step size)
+i<-1 #Initialize number of iteration to 1.
 NStop<-10000 #Need to set up a maximum amount of iteration to avoid infinite loops.
 
 #Keep going if the errors are not consecutively small in a row. See how we construct cont later.
+#Also, the convergence of this rule is very slow. So we add 10 new intervals for each iteration.
+#Namely, we have 10 intervals in the first iteration and 20 in the second iteration and so on.
 while (cont<=Ntol) { 
-  
-  #Compute new error with a new iteration (with one more interval of course)
-  err.new<-abs(myFwdRec(funct=intfun, lb=2, ub=20, s=(1/n))-log(7))
+  #Convert number of iteration to interval numbers
+  n<-10*i
+    #Compute new error with a new iteration (with one more interval of course)
+  err.new<-abs(myFwdRec(funct=intfun, lb=2, ub=20, n=n)-log(7))
   
   #Determine if consecutively small happens. Reset to 0 if becomes "large" during the process.
   if (err.new<tol&&err<tol) {
@@ -641,19 +645,19 @@ while (cont<=Ntol) {
     break
     }
   
-  if(n==NStop) {
+  if(i==NStop) {
     cat("Do not converge to true value after ",NStop," times of iteration.")
     break
   }
   
   #Update error and number of iterations if the iteration continues.
   err<-err.new #Store current error as the "old" error for the next iteration.
-  n<-n+1 #Update the number of iteration
+  i<-i+1 #Update the number of iteration
 }
 
 #n is the number of iteration, and the N we want is exactly n-Ntol.
 if (cont==Ntol) {
-  cat("Number of iterations = ",n,"; Converged when n = ",n-Ntol)
+  cat("Number of iterations = ",i,"; Converged when n = ",i-Ntol)
 }
 ```
 
