@@ -366,17 +366,17 @@ You will get a 2-by-N matrix, with the first row being the sample of $X$ and the
     - For general multivariate cases, we simply construct the correlation matrix with diagonal elements being 1, and the off-diagonal elements being coefficients of correlation for each variable pair. Then we get $C$ by performing a Cholesky Decomposition with it using `chol()` and then take a transpose using `t()`.
 - What if the multivariate distribution is NOT normal? Need other ways around. **Gibbs Sampling** is a possible answer.
 - **Requirement:**
-1. Need to know the **conditional densities**. In a bivariate case, $f_{X}(x|Y=y)$ and $f_{Y}(y|X=x)$.
-2. The underlying distribution needs to be easy enough to work with.
+    1. Need to know the **conditional densities**. In a bivariate case, $f_{X}(x|Y=y)$ and $f_{Y}(y|X=x)$.
+    2. The underlying distribution needs to be easy enough to work with.
 - **Procedure:**
 
-**Step 1.** Pick an arbitrary initial value $x_{0}$ and $y_{0}$.
+    **Step 1.** Pick an arbitrary initial value $x_{0}$ and $y_{0}$.
 
-**Step 2.** Draw $y_{1}$ conditional on $x_{0}$ from the conditional density $f_{Y}(y|X=x_{0})$.
+    **Step 2.** Draw $y_{1}$ conditional on $x_{0}$ from the conditional density $f_{Y}(y|X=x_{0})$.
 
-**Step 3.** Draw $x_{1}$ conditional on $y_{1}$ from the conditional density $f_{X}(x|Y=y_{1})$.
+    **Step 3.** Draw $x_{1}$ conditional on $y_{1}$ from the conditional density $f_{X}(x|Y=y_{1})$.
 
-**Step 4.** Use $x_{1}$ and $y_{1}$ to repeat Steps 2 and 3 to obtain $x_{2}$ and $y_{2}$, so on and so forth until we draw enough of observations $(x,y)$.
+    **Step 4.** Use $x_{1}$ and $y_{1}$ to repeat Steps 2 and 3 to obtain $x_{2}$ and $y_{2}$, so on and so forth until we draw enough of observations $(x,y)$.
 
 - Put it differently, in this procedure we first move along the y-axis, and then along the x-axis, and then repeat. The steps are thus 
 $$
@@ -385,7 +385,7 @@ $$
 and eventually we take $\{(x_{0},y_{0}),(x_{1},y_{1}),(x_{2},y_{2}),...\}$ as the output.
 
 
-Let's see it visually. Each point represents an observation we keep. The intermediate observations are not show, but can be seen from the path we travel.
+Let's see it visually. Each point represents an observation we keep. The intermediate observations are not shown, but can be seen from the path we travel.
 ```{r, echo=FALSE, message=FALSE}
 shinyApp(
 ui = fluidPage(
@@ -448,12 +448,11 @@ options = list(width = "100%", height = 900)
 )
 ```
 
-**Discussions**
 There are several restrictions when using Gibb's Sampling.
 
 1. We take an initial *guess* which we thought to be the point where most of the density lies. But obviously good guesses don't happen everyday. The procedure involves in a lot of *traveling*, and you are likely to travel through unimportant regions. This traveling is prolonged if we start with a bad guess. In a more jargon way, this procedure is *auto-correlated* (the current point reached completely depends on the previous starting point as we have seen from the interactive figure). Such an auto-correlation goes away only when we have performed a good amount of drawn.
 
-The moral is, we should **not** use the observations obtained in the early steps of the procedure. For example, if we draw with Gibbs Sampling for $10^6$ observations, we may want to drop the very first $6\times10^3$ observations. This is so-called **burn-in**. But how much to drop, and how much to draw? It is an art......
+    The moral is, we should **not** use the observations obtained in the early steps of the procedure. For example, if we draw with Gibbs Sampling for $10^6$ observations, we may want to drop the very first $6\times10^3$ observations. This is so-called **burn-in**. But how much to drop, and how much to draw? It is an art......
 
 2. Gibbs Sampling can be trapped / fail to reach certain regions. Consider the two examples.
 
@@ -465,6 +464,6 @@ The moral is, we should **not** use the observations obtained in the early steps
 
 1. Perform Gibbs Sampling to draw a sample of size 100000 from a Bivariate Normal Distribution. You are free to set $\mu_{x}$, $\mu_{y}$, $\sigma_{x}$, $\sigma_{y}$, and $\rho$. 
 
-You will need to use `for` loop to make the draw step-by-step. You may want to create a matrix / data.frame with 100000 rows, and replace the corresponding elements with your draw during the loop.
+    You will need to use `for` loop to make the draw step-by-step. You may want to create a matrix / data.frame with 100000 rows, and replace the corresponding elements with your draw during the loop.
 
 2. Compute $\rho$ with the sample you have drawn and compare with your setting. Specifically, we want to find the *optimal burning-in* such that $diff\equiv|\rho_{computed} - \rho_{setting}|<10^{-6}$. You will need to setup a `while` loop that iterates up to 100000 times. In the first iteration you compute $\rho$ with the full sample, and in the second iteration you do the same with the first observation dropped, and so on. The iteration stops either when you run out of iteration, or when $diff$ becomes small enough upon $n$-th iteration. This $n$ is the number you want.
