@@ -585,7 +585,7 @@ the workflow is as follows:
     
     Step 2: Determine the number of nodes $n$, generate nodes $v^{(i)}$ and weights $\omega^{(i)}$.
     
-    Step 3: **Form a grid**. For example, assume that we look at a 3-dimensional problem ($x$, $y$, and $z$) with 2 nodes. Then Step 2 gives us $v^{(i)}$ and $v^{(i)}$. But we need to apply it to apply it to all 3 dimensions. So we have a grid of $2^3=8$ points: $(v^{(i)},v^{(i)},v^{(i)})$, $(v^{(i)},v^{(i)},v^{(i)})$, $(v^{(i)},v^{(i)},v^{(i)})$, and so on.
+    Step 3: **Form a grid**. For example, assume that we look at a 3-dimensional problem ($x$, $y$, and $z$) with 2 nodes. Then Step 2 gives us $v^{(1)}$ and $v^{(2)}$. But we need to apply it to apply it to all 3 dimensions. So we have a grid of $2^3=8$ points: $(v^{(1)},v^{(1)},v^{(1)})$, $(v^{(1)},v^{(1)},v^{(2)})$, $(v^{(1)},v^{(2)},v^{(1)})$, and so on.
     
     Step 4: Compute the sum where $x^{(i_k)}_k$ is replaced with $v^{(i)}$
 $$
