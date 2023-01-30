@@ -170,7 +170,7 @@ seq(from=1, to=3.6, length.out = 2)
 #Step size is now (3.6-1)/2 = 1.3
 seq(from=1, to=3.6, length.out = 3)
 ```
-- One can think of `length.out` as the number of elements / nodes / endpoints on a number line, thus `length.out - 1` is exactly the number of segments / intervals.
+- One can think of `length.out` as the number of elements / nodes on a number line, thus `length.out - 1` is exactly the number of segments / intervals.
 
 # Basic Rules for Numerical Integration
 
@@ -207,7 +207,6 @@ $$
 $$
 - Let's plot it out, and note down the *true value* when integrated on $[2,20]$.
 ```{r, message=FALSE}
-library(ggplot2)
 library(tidyverse)
 #Simple Function to be integrated
 intfun<-function(x) {1/(1+x)}
@@ -245,7 +244,7 @@ mainPanel(plotOutput("FwdRec"))
 
 server = function(input,output) {
   output$FwdRec = renderPlot({
-  n.fr<-(input$s.fr)+1 #number of endpoints, needs to be integer greater than 2.
+  n.fr<-(input$s.fr)+1 #number of nodes, needs to be integer greater than 2.
   x.fr<-seq(2,20,length.out=n.fr) #nodes x_i
   sp.fr<-x.fr[2]-x.fr[1] #Step
   y.fr<-intfun(x.fr)[-n.fr] #Evaluate nodes. The last element is the endpoint and is not needed.
@@ -269,7 +268,7 @@ server = function(input,output) {
 
 - Implementation with R. Note that we use `length.out` instead of `by`. Why so?
 ```{r, message=FALSE}
-n.fr<-20 #number of endpoints, needs to be integer greater than 2.
+n.fr<-20 #number of nodes, needs to be integer greater than 2.
 x.fr<-seq(2,20,length.out=n.fr) #nodes x_i
 sp.fr<-x.fr[2]-x.fr[1] #Step
 y.fr<-intfun(x.fr)[-n.fr] #Evaluate nodes. The last element is the endpoint and is not needed.
@@ -324,19 +323,19 @@ myFwdRec(funct=t, lb=0, ub=6, n=100)
 #Try infinite boundary
 myFwdRec(funct=function(x) {1+x}, lb=0, ub=Inf, n=100)
 
-#Try steps too large
-myFwdRec(funct=function(x){1+x}, lb=0, ub=3, n=100)
+#Try invalid interval number
+myFwdRec(funct=function(x){1+x}, lb=0, ub=3, n=-1)
 
 #Try singularity, say 1/x at x=0
 myFwdRec(funct=function(x){1/x}, lb=0, ub=1, n=100)
 ```
 
-- Trying to make customized functions is highly recommended. 
-    - When doing large projects you will need to recycle certain code chunks over and over. If this happens, wrapping them into functions saves your time from doing copy-paste.
-    - Functions are easier to manage. For large scale projects doing this and that, wrapping each part into functions make it a lot easier for debugging. When running into problems when performing certain tasks, you just need to examine the functions for these tasks instead of going through a lot of lines.
-    - Therefore, make a function as simple as possible. Ideally one function handles one specific task.
-    - This kind of simple functions might have been implemented in R packages by big guys. But it is still a good practice to befriend with R and other programming languages.
-    - When wrapping functions, try to handle exceptions as possible (like those `if else` I do in the example above). It helps you figure out problems and ensures reliability of your function.
+- You should try to make your own customized function. 
+    - When doing large projects you will need to recycle certain code chunks over and over. If this happens, wrapping them into functions saves your time from finding your code chunks and doing copy-paste.
+    - Functions are easier to manage. For large scale projects doing this and that, wrapping each part into functions make it a lot easier for debugging. When running into problems performing certain tasks, you just need to examine the functions for these tasks instead of going through a lot of lines.
+    - Make a function as simple as possible. Ideally one function handles one specific task.
+    - This kind of simple functions might have been implemented in R packages by big guys. But it is still a good practice for befriending with R and other programming languages.
+    - Try to handle exceptions as possible (like those `if else` I do in the example above). It helps you figuring out problems and ensures reliability of your function.
 
 ## Midpoint Rule
 
@@ -360,7 +359,7 @@ mainPanel(plotOutput("MidPt"))
 
 server = function(input,output) {
   output$MidPt = renderPlot({
-  n.mr<-(input$s.mr)+1 #number of endpoints, needs to be integer greater than 2.
+  n.mr<-(input$s.mr)+1 #number of nodes, needs to be integer greater than 2.
   x.mr<-seq(2,20,length.out=n.mr) #nodes x_i
   sp.mr<-x.mr[2]-x.mr[1] #Step
   mid<-x.mr+(sp.mr/2) #Get midpoints
@@ -409,7 +408,7 @@ mainPanel(plotOutput("Trapz"))
 
 server = function(input,output) {
   output$Trapz = renderPlot({
-  n.tr<-(input$s.tr)+1 #number of endpoints, needs to be integer greater than 2.
+  n.tr<-(input$s.tr)+1 #number of nodes, needs to be integer greater than 2.
   x.tr<-seq(2,20,length.out=n.tr) #nodes x_i
   sp.tr<-x.tr[2]-x.tr[1] #Step
   y.tr<-intfun(x.tr) #Evaluate nodes.
@@ -440,7 +439,7 @@ server = function(input,output) {
 
 ### In-class Exercise
 
-Implement the Trapezoidal with R. Refer to the code for Forward Rectangular Rule. The key is that you need to *shift* the evaluated function. For example, if you have 2 segments hence 3 endpoints `x<-c(x1,x2,x3)`, then `y<-intfun(x)` gives you `c(y1,y2,y3)`. You need to compute `c(y1+y2,y2+y3)` for the trapezoidal regions, which can be done with vector indices `[]`.
+Implement the Trapezoidal with R. Refer to the code for Forward Rectangular Rule. The key is that you need to *shift* the evaluated function. For example, if you have 2 segments hence 3 nodes `x<-c(x1,x2,x3)`, then `y<-intfun(x)` gives you `c(y1,y2,y3)`. You need to compute `c(y1+y2,y2+y3)` for the trapezoidal regions, which can be done with vector indices `[]`.
 
 ## Simpson's Rule
 
@@ -454,7 +453,7 @@ Implement the Trapezoidal with R. Refer to the code for Forward Rectangular Rule
 $$
 I=\int_{a}^{b}f\left(x\right)dx\approx\frac{b-a}{6n}\sum_{i=1}^{n}\left[f\left(x_{i}\right)+4f\left(\frac{x_{i}+x_{i+1}}{2}\right)+f\left(x_{i+1}\right)\right]
 $$
-where $n$ is the number of segments (hence we have $n+1$ endpoints in total).
+where $n$ is the number of segments (hence we have $n+1$ nodes in total).
 
 - With simple algebraic manipulations, the RHS is in fact
 $$
@@ -464,7 +463,7 @@ which is exactly an *weighted average* between the Trapezoidal Rule and the Midp
 
 Implementation is easy once you know how to implement Midpoint and Trapezoidal Rules.
 ```{r, message=FALSE}
-n.simp<-10 #number of endpoints, needs to be integer greater than 2.
+n.simp<-10 #number of nodes, needs to be integer greater than 2.
 x.simp<-seq(2,20,length.out=n.simp) #nodes x_i
 sp.simp<-x.simp[2]-x.simp[1] #Step
 
@@ -493,7 +492,7 @@ mainPanel(plotOutput("Simpson"))
 
 server = function(input,output) {
   output$Simpson = renderPlot({
-  n.simp<-(input$s.simp)+1 #number of endpoints, needs to be integer greater than 2.
+  n.simp<-(input$s.simp)+1 #number of nodes, needs to be integer greater than 2.
   x.simp<-seq(2,20,length.out=n.simp) #nodes x_i
   sp.simp<-x.simp[2]-x.simp[1] #Step
   
@@ -549,7 +548,7 @@ server = function(input,output) {
     x<-seq(2,20,length.out=i)
     s<-x[2]-x[1]
     
-    #Evaluate endpoint and midpoint values
+    #Evaluate values for nodes and midpoints
     y<-intfun(x)
     y.mid<-intfun((x+s/2))
     
@@ -580,8 +579,7 @@ server = function(input,output) {
 )
 ```
 
-- So how do we define **convergence**?
-    - From undergraduate calculus, 
+- So how do we define **convergence**? Undergraduate calculus says
     
 $$
 \lim_{n\rightarrow \infty} |f(x_{n})-L|<\epsilon
@@ -589,7 +587,7 @@ $$
 
 - Literally, for any arbitrarily picked small number $\epsilon$, there exists a number of iteration $N$, such that for all $n\geq N$ we always find the distance $|f(x_{n})-L|$ to be less than $\epsilon$. Namely, when we iterate for many many times the results should be almost similar.
 
-- Here in our example, $L = ln(7)$ and $n$ is the number of intervals for computing numerical integration such that the step size is defined as $s\equiv1/n$. We call it a convergence if there exists an $N$ such that any smaller step sizes below $1/N$ do not give us results too different from $L$.
+- Here in our example, $L = \ln7$ and $n$ is the number of intervals for computing numerical integration. Note that more intervals means smaller step sizes. We call it a convergence if there exists an $N$ such that using more intervals than $N$ (hence using smaller step sizes) do not give us results too different from $L$.
 - Practically, we usually let $\epsilon = 10^{-6}$ and find $N$ following the criteria above.
 
 - Implementation process: 
@@ -692,7 +690,7 @@ $$
 $$
 
 - For Forward Rectangular, we have $\xi_i$ to be the first $n$ nodes if we break the interval into $n$ intervals of equal distances. In Midpoint, $\xi_i$ is the midpoints of each interval. The weight is simply the step size.
-- For Trapezoidal, $xi_i$ are all the nodes and weight is step size for middle nodes and half of the step size for the first and the last nodes.
+- For Trapezoidal, nodes are $xi_i$ and weights are either full or half of the step size depending on whether the nodes are endpoints.
 - For Simpson's, nodes and weights are generated from the roots of a **quadratic Lagrange interpolating polynomial**. This polynomial is designed to generate the best approximation to a curve with 3 nodes.
 
 # Gaussian Quadrature Rules
@@ -704,8 +702,8 @@ $$
 $$
 
 - These polynomials are designed such that $n$ nodes can **exactly** fit the integrals of polynomials of degree $2n-1$. Namely, Gauss Quadrature Rules compute the exact values of integration to general polynomial of degree $2n-1$ using just $n$ nodes.
-- For non-polynomial integrands, Gauss Quadrature Rules **approximates** its integral.
-- What are those specifically-designed polynomials that generate the weights and nodes? It is rule-specific and is beyond our scope. Refer to the Wikipedia pages of the rules introduced in this course for more details about this...
+- For non-polynomial integrands, Gauss Quadrature Rules **approximate** the integrals.
+- Which (specifically-designed) polynomial is used to generate the weights and nodes? Depends on which rule we use, and is beyond our scope. Refer to the Wikipedia pages of the rules introduced in this course for more details...
 
 - Why do we need Gaussian Quadrature? Because:
 1. Deals with *improper integral*, e.g., integrating on unbounded interval such as $(0,\infty)$ and $(-\infty,\infty)$, integrand involving in singularity such as $1/x$ around $0$.
@@ -736,8 +734,7 @@ $$
 
 2. If the interval does not align, say trying to integrate on $[-3,10]$ using Gauss-Legendre, we can do a *change of variable* to reformulate the problem such that the interval is aligned. 
     
-- Review *Change of Variable* in undergraduate calculus: 
-    - We want to integrate $f(x)$ on an interval $[a,b]$. Suppose that $y$ and $x$ takes a relationship by $x=h(y)$ where $h(y)$ is differentiable (at least to the first degree) and is invertible ($h^{-1}(x)$ exists) on the interval. Then we can rewrite our integration problem in terms of $y$ by the following manner:
+- *Change of Variable:* We want to integrate $f(x)$ on an interval $[a,b]$. Suppose that $y$ and $x$ takes a relationship by $x=h(y)$ where $h(y)$ is differentiable (at least to the first degree) and is invertible ($h^{-1}(x)$ exists) on the interval. Then we can rewrite our integration problem in terms of $y$ by the following manner:
 $$
 \int^{b}_{a}f(x)dx = \int^{h^{-1}(b)}_{h^{-1}(a)}f(h(y))h^{\prime}(y)dy
 $$
@@ -822,7 +819,7 @@ gl<-gaussLegendre(n=2, a=2, b=20)
 sum(intfun(gl$x)*gl$w) #Not very accurate now, only get 1.8462 < ln(7)
 ```
 
-- How does the nodes and weights look like? It is something like "discrete uniform", but the weights gradually decrease as the nodes get closer to the boundaries.
+- How do the nodes and weights look like? It is something like "discrete uniform", but the weights gradually decrease as the nodes get closer to the boundaries.
     - Tries to treat $f(x)$ at all nodes as equal as possible, but still $f(x)$ near the center becomes more important as we have more nodes.
 - See it interactively using the default $[-1,1]$ setting
 ```{r, echo=FALSE, message=FALSE}
