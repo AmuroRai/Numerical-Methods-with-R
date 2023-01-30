@@ -195,14 +195,15 @@ Perform Monte Carlo Integration for $\int^{1}_{0}x^{3}dx$ with a random vector o
 - What if the interval of integration is large, e.g., $x\in(-1000,1000)$? Obviously drawing from $U[-1000,1000]$ is going to take a huge load of draws to be representative, and is time consuming!
 - Even worse, what if the interval is not finite, say $x\in(0,\infty)$?
 - **Change of Variable** helps us to suppress the interval of integration into $[0,1]$.
-- Recall that we need to find some differentiable $y=h(x)$ such that $x\in[a,b]$ becomes $y\in[0,1]$ and $dy=h^{\prime}(x)dx$. Preferably we want $h(x)$ to be **linear**. Fortunately there are ready-to-use results:
-    - For $x\in[a,b]$, we let $x=a+(b-a)y$ so $dx=(b-a)dy$ and $y\in[0,1]$.
-    
-    - For $x\in(-\infty,\infty)$, we let $x=\frac{2y-1}{y-y^2}$ so $dx=\frac{2y^2-2y+1}{(y^2-y)^2}dy$ and $y\in[0,1]$.
-    
-    - For $x\in[a,\infty)$, we let $x=a+\frac{y}{1-y}$ so $dx=\frac{1}{(y-1)^2}dy$ and $y\in[0,1]$.
-    
-    - For $x\in(-\infty,b]$, we let $x=b+\frac{y-1}{y}$ so $dx=\frac{1}{y^2}dy$ and $y\in[0,1]$.
+- Recall that we need to find some differentiable $x=h(y)$ such that $x\in[a,b]$ becomes $y\in[0,1]$ and $dx=h^{\prime}(y)dx$. Preferably we want $h(y)$ to be **linear**. Fortunately there are ready-to-use results that convert $x$ into $y\in[0,1]$:
+
+$x$ interval  | $x=h(y)$  | $dx=h^{\prime}(y)dy$ |
+------------- | --------- | -------------------- | 
+$x\in[a,b]$ | $x=a+(b-a)y$ | $dx=(b-a)dy$ |
+$x\in(-\infty,\infty)$ | $x=\frac{2y-1}{y-y^2}$ | $dx=\frac{2y^2-2y+1}{(y^2-y)^2}dy$ |
+$x\in[a,\infty)$ | $x=a+\frac{y}{1-y}$ | $dx=\frac{1}{(y-1)^2}dy$ |
+$x\in(-\infty,b]$ | $x=b+\frac{y-1}{y}$ | $dx=\frac{1}{y^2}dy$ |
+ |  |  |
 
 - Example: 
 $$

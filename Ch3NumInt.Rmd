@@ -709,13 +709,15 @@ $$
     - Nodes **might** fall on singular points if they are in the interior of the interval, e.g., integrating $1/x$ over $[-1,1]. But we can always use the singular points to divide the interval into subintervals, perform numerical integration on them and sum them up (**additivity of integration**).
 2. Flexible: simple changes of variable allows us to do numerical integration to most, if not all, of the functions on various intervals.
 
-- We cover 4 different Gaussian Quadrature Rules (and discuss 3 of them). Which rule to use? Depends on the type of interval $[a,b]$ and the form of weighting function $p(x)$. 
+- We cover 4 different Gaussian Quadrature Rules (and discuss 3 of them). Which rule to use? Depends on the type of interval $[a,b]$ and the form of weighting function $p(x)$:
 
-    Consider a function $g(x)=p(x)f(x)$ and the interval of integration $[a,b]$, we can approximate the integral $\int^{b}_{a}g(x)dx$ by $\sum_{i=1}^{n}\omega_{i}f(x_{i})$ using the following rules once the requirements on $p(x)$ and $[a,b]$ are met respectively
-    1. **Gauss-Legendre:** $p(x)=1$ and $[a,b]=[-1,1]$. 
-    2. **Gauss-Chebyshev:** $p(x)=(1-x^2)^{-\frac{1}{2}}$ and $[a,b]=[-1,1]$. 
-    3. **Gauss-Hermite:** $p(x)=e^{-(x^{2})}$ and $[a,b]=(-\infty,\infty)$.
-    4. **Gauss-Laguerre:** $p(x)=e^{-x}$ and $[a,b]=[0,\infty)$. 
+Quadrature  | $p(x)$  | $x$ interval |
+----------- | ------- | ------------ | 
+**Gauss-Legendre** | $p(x)=1$ | $[-1,1]$ |
+**Gauss-Chebyshev** | $p(x)=(1-x^2)^{-\frac{1}{2}}$ | $[-1,1]$ |
+**Gauss-Hermite** | $p(x)=e^{-(x^{2})}$ | $(-\infty,\infty)$ |
+**Gauss-Laguerre** | $p(x)=e^{-x}$ | $[0,\infty)$ |
+|  |  |
 
 - But what if the intervals and the form of $p(x)$ are not aligned with ANY of the rules above? Two solutions:
 1. If $p(x)$ does not align, we can supply it by force. 
@@ -770,15 +772,15 @@ $$
 \int^{0}_{-\infty}x^2dx=\int^{\infty}_{0}y^2dy
 $$
 
-- The transformation $y=h(x)$ are in general NOT unique. You might come up with a more complicated $h(x)$ but still convert the interval into the one you need. Nevertheless, no need to go for complication. Oftentimes a **linear transformation** is the most brainless way to serve our purpose. The following are frequently used linear transformations that convert an interval into $[-1,1]$:
+- The transformation $x=h(y)$ are in general NOT unique. You might come up with a more complicated $h(y)$ but still convert the interval into the one you need. Nevertheless, no need to go for complication. Oftentimes a **linear transformation** is the most brainless way to serve our purpose. The following are frequently used linear transformations that convert an interval into $[-1,1]$:
 
-    - For $x\in[a,b]$, we let $x=\frac{a+b}{2}+\frac{b-a}{2}y$ so $dx=\frac{b-a}{2}dy$ and $y\in[-1,1]$.
-    
-    - For $x\in(-\infty,\infty)$, we let $x=\frac{y}{1-y^2}$ so $dx=\frac{y^2+1}{(y^2-1)^2}dy$ and $y\in[-1,1]$.
-    
-    - For $x\in[a,\infty)$, we let $x=a+\frac{1+y}{1-y}$ so $dx=\frac{2}{(y-1)^2}dy$ and $y\in[-1,1]$.
-    
-    - For $x\in(-\infty,b]$, we let $x=b-\frac{1-y}{1+y}$ so $dx=\frac{2}{(1+y)^2}dy$ and $y\in[-1,1]$.
+$x$ interval  | $x=h(y)$  | $dx=h^{\prime}(y)dy$ |
+------------- | --------- | -------------------- | 
+$x\in[a,b]$ | $x=\frac{a+b}{2}+\frac{b-a}{2}y$ | $dx=\frac{b-a}{2}dy$ |
+$x\in(-\infty,\infty)$ | $x=\frac{y}{1-y^2}$ | $dx=\frac{y^2+1}{(y^2-1)^2}dy$ |
+$x\in[a,\infty)$ | $x=a+\frac{1+y}{1-y}$ | $dx=\frac{2}{(y-1)^2}dy$ |
+$x\in(-\infty,b]$ | $x=b-\frac{1-y}{1+y}$ | $dx=\frac{2}{(1+y)^2}dy$ |
+ |  |  |
 
 ## Frequently Used Gaussian Quadratures and Implementation on R
 
