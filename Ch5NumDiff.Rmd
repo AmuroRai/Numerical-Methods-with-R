@@ -178,7 +178,7 @@ Note that the $x+\frac{h}{2}$ in $f^{\prime}(x+\frac{h}{2})$ should be treated a
 
 - It is totally fine to write down the formula above in R directly for implementation. But with some algebraic manipulation we can make it simple:
 $$
-f^{\prime\prime}(x)\approx\frac{f^{\prime}(x+\frac{h}{2})-f^{\prime}(x-\frac{h}{2})}{h}=\frac{f(x+\frac{h}{2})-2f(x)+f(x-\frac{h}{2})}{h^2}
+f^{\prime\prime}(x)\approx\frac{f^{\prime}(x+\frac{h}{2})-f^{\prime}(x-\frac{h}{2})}{h}=\frac{f(x+h)-2f(x)+f(x-h)}{h^2}
 $$
 - Demonstrate Second-order derivative of $y=1/(1+x)$ at $x=4$.
 ```{r}
@@ -319,7 +319,7 @@ $$
 \frac{\partial f(x,y)}{\partial x} \approx \frac{f(x+\frac{h}{2},y)-f(x-\frac{h}{2},y)}{h}
 $$
 $$
-\frac{\partial^{2}f(x,y)}{\partial x^{2}} \approx \frac{f(x+\frac{h}{2},y)-2f\left(x,y\right)+f(x-\frac{h}{2},y)}{h^{2}}
+\frac{\partial^{2}f(x,y)}{\partial x^{2}} \approx \frac{f(x+h,y)-2f\left(x,y\right)+f(x-h,y)}{h^{2}}
 $$
 - Cross derivative is a bit complicated, but it still follows the calculus definition. Use $f(x,y)$ as an example, we have
 $$
