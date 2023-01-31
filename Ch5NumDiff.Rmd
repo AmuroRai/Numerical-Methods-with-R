@@ -292,7 +292,7 @@ format(2^-53+2^-53+1,nsmall=20) #But here it is NOT treated as 0 since we are ad
       See Wikipedia: https://en.wikipedia.org/wiki/Big_O_notation
     - In a nutshell, $h^2$ is smaller than $h$ when $h$ is less than 1 as required by numerical derivative. Therefore the Central Rule is more accurate than the Forward Rule.
     
-2. A rule of thumb to improve the precision issue is to simply use the **square root of machine epsilon**. For R, it is exactly $\sqrt{2^-52}=2^{-26}$. We demonstrate with the same example. It out performs all $h$ in the previous example except $10^{-7}$ and $10^{-8}$.
+2. A rule of thumb to improve the precision issue is to simply use the **square root of machine epsilon**. For R, it is exactly $\sqrt{2^{-52}}=2^{-26}$. We demonstrate with the same example. It out performs all $h$ in the previous example except $10^{-7}$ and $10^{-8}$.
 ```{r}
 #Use square root of machine epsilon as our step size.
 oh<-sqrt(me) #About 1.5e-8, so is between 1e-8 and 1e-7.
@@ -327,7 +327,7 @@ $$
 $$
 Therefore we can approximate by Central Rule as
 $$
-\frac{\partial^{2}f(x,y)}{\partial y\partial x}\approx\frac{f\left(x+\frac{h}{2},y+\frac{k}{2}\right)-f\left(x,y+\frac{k}{2}\right)-f\left(x+\frac{h}{2},y\right)+f\left(x,y\right)}{hk}
+f_{xy}(x,y)\equiv\frac{\partial^{2}f(x,y)}{\partial y\partial x}\approx\frac{f\left(x+\frac{h}{2},y+\frac{k}{2}\right)-f\left(x-\frac{h}{2},y+\frac{k}{2}\right)-f\left(x+\frac{h}{2},y-\frac{k}{2}\right)+f\left(x-\frac{h}{2},y-\frac{k}{2}\right)}{hk}
 $$
     - The cross derivative $\partial^2f(x,y)/\partial x\partial y$ is analogously obtained.
 
@@ -555,7 +555,7 @@ where we can think of each $w_i$ as a "node". The two algorithms differ by the o
 
 - For programming, in general this involves in the following steps:
     1. Need to declare a new `class` (equivalent to `struct` in C, Matlab and Julia) to introduce dual number following its definition.
-    2. Need to modify the basic arithmetic in order to adopt dual number. In short, you need to teach R how arithmetic operations is performed for the dual number class.
+    2. Need to modify the basic arithmetic in order to adopt dual number. In short, you need to teach R how arithmetic operations are performed for the dual number class.
     3. Similar to Step 2, you need to modify the math functions like `exp` and `log` and other special functions like `gamma` so that they know what to do with dual numbers.
     - These are somewhat easy to perform on Julia, but for R you will need to have knowledge on *functional programming*. Hadley Wickham's book is your best friend if you really want to dive into it:  http://adv-r.had.co.nz/OO-essentials.html
 
@@ -636,9 +636,8 @@ dnorm(x=3,mean=0,sd=1) #Check PDF of standard normal at x=3. Similar!
 ```
 
 - All sounds good. But there are drawbacks:
-1. Need to "redefine" the math functions to take dual number. For example, `dnorm(x,0,1)` returns an error since `dual` does not adopt the `dual` class to `dnorm`. One will need to use the definition of normal pdf for its derivative, instead of calling directly from `dnorm`.
+1. Need to "redefine" the math functions to take dual number. For example, `dnorm(x,0,1)` returns an error since `dual` package does not adopt the dual class to `dnorm`. One will need to use the definition of normal pdf for its derivative, instead of calling directly from `dnorm`. This also means that you need to manually redefine existing R functions (especially special functions provided by other packages) if they are not integrated with `dual` package. To do so, we need to be familiar with the derivative properties of the functions as well as programming.
 
-    This means that one need to be familiar with the derivative properties of the functions as well as programming if we are to bring functions of interest to automatic differentiation!
 2. Need specialized algorithms to further bring automatic differentiation to higher order derivatives.
 
 - Nevertheless it is still good to learn about it. At least you know what you are doing if you will be using a full-fledged program dedicated for automatic differentiation.
