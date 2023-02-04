@@ -531,7 +531,7 @@ $$
 where $\lambda>0$ and $k>0$ represent the scale and shape parameters, respectively.
     - The pdf of Weibull with different shape and scale parameters. It can have an asymptote around $x=0$, i.e., density goes to $\infty$ as $x$ gest arbitrarily close to 0.
 
-```{r}
+```{r,echo=FALSE}
 ggplot(data=data.frame(x=c(0,10)),aes(x)) +
   stat_function(fun=dweibull,n=1000,args=list(shape=1,scale=0.5),
                 aes(color="shape = 1, scale = 0.5"),size=1.5)+
