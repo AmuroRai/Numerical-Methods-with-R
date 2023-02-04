@@ -190,12 +190,11 @@ $$
 I= \int^{b}_{a} p(x)f(x)dx \approx \sum_{i=1}^{n} \omega_i f(x_i)
 $$
 
-- Sounds familiar? Think about how integrals are defined back in undergraduate calculus! 
-- Riemann Sum:
+- Sounds familiar? Think about how integrals are defined by Riemann Sum:
 $$
-\int^{a}_{b}f(x)dx \equiv \lim_{\Delta x \rightarrow 0}\sum_{i=1}^{n}f(x_i)\Delta x
+\int^{a}_{b}g(x)dx \equiv \lim_{\Delta x \rightarrow 0}\sum_{i=1}^{n}g(x_i)\Delta x
 $$
-In this case, $\omega_i=\Delta x$ for all i, i.e., equal weight / *step size* (although arbitrarily small).
+In this case, $\omega_i=\Delta x$ for all $i$, i.e., equal weight / *step size* (although arbitrarily small).
 - We will be introducing numerical approaches based on Riemann Sum, which you have learned back in undergraduate calculus if you still remember...
 - Focus on a simple example: integrating $g(x)=\frac{1}{1+x}$ from $2$ to $20$. Specifically, we let $p(x)=1$ hence $g(x) = f(x) = \frac{1}{1+x}$. The problem we want to solve is thus 
 $$
@@ -203,7 +202,7 @@ $$
 $$
 Simple calculus shows that
 $$
-\int_{2}^{20}\frac{1}{1+x}dx=\ln(7)\approx1.9459
+\int_{2}^{20}\frac{1}{1+x}dx=\ln7\approx1.9459
 $$
 - Let's plot it out, and note down the *true value* when integrated on $[2,20]$.
 ```{r, message=FALSE}
