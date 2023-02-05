@@ -5,6 +5,7 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
+    code_folding: show
 runtime: shiny
 ---
 
@@ -51,7 +52,7 @@ pre { /* Code block - determines code spacing between lines */
 </style>
 
 
-```{r, message=FALSE,echo=FALSE,warning=FALSE}
+```{r, message=FALSE,warning=FALSE}
 library(tidyverse)
 library(gridExtra)
 ```
@@ -183,7 +184,7 @@ $$
 y=x^4-15x^2+8x+30
 $$
 
-```{r,echo=FALSE}
+```{r}
 #Roots, minimum and maximum
 pf<-function(x) {x^4-15*x^2+8*x+30}
 pts<-data.frame(x=c(3,2.1055,-1.2235,-3.882,2.594,0.2693,-2.8633),
@@ -305,7 +306,7 @@ server = function(input,output) {
         - Column 4 `m` is the midpoint between `a` and `b` in the same iteration. Note that the first row is the initial setting.
 - `bisec` checks if the inputs are eligible, and report and error message if not.
 - `bisec` gives an error message if the signs of values on the endpoints are the same.
-```{r, echo=FALSE}
+```{r}
 #Bisection Method
 #fun is function, tol is the value to define convergence, imax is the maximum number of iteration
 #bnd is for searching interval. Needs to be a list of length 3, such that bnd[[1]] is the name of 
@@ -744,7 +745,7 @@ rs.div[[2]]
 ```
 
 - What happened to the case using `v=2`?
-```{r,echo=FALSE}
+```{r}
 ggplot(data=rs.div$history[seq(1,nrow(rs.div$history),5),],aes(x=i,y=x0))+
   geom_line(size=1)
 ggplot(data=rs.div$history,aes(x=i,y=diff))+
@@ -788,7 +789,7 @@ ggplot(data=rs.div$history,aes(x=i,y=diff))+
 - **Fixed Point:** A point of a function that maps to itself. More formally, a fixed point $x^*$ of a function $h(x)$ is such that $h(x^*)=x^*$.
 - The following draws $y=x({1/3}$ in the $[0,1]^2$ space. Points $(0,0)$ and $(1,1)$ are fixed point since their self-mappings are themselves.
     - Plug $x=1$ into $x^{1/3}$ gives you $y=1$, the same goes for $x=0$. But NOT other points!
-```{r,echo=FALSE}
+```{r}
 #Fixed point
 ggplot(data=data.frame(x=c(0,1.5)),aes(x))+
   stat_function(fun=function(x){x^(1/3)},n=500,size=1,color="blue")+
@@ -880,7 +881,7 @@ server = function(input,output) {
 
 - We use contraction mapping to solve the problem $x^{\frac{1}{3}}-x=0$. The code is not provided for this simple example, and is left as your assignment back home.
 
-```{r,echo=FALSE}
+```{r}
 
 #Define the function
 funct<-function(x) {x^(1/3)}
@@ -935,18 +936,26 @@ q_{S}=2+5p
 $$
 where the subscript $D$ and $S$ refers to demand and supply respectively. 
 
-- The excess demand of this market is defined by the difference between quantity demanded and quantity supplied $ED\equiv q_{D}+q_{S}$ as
+- The excess demand of this market is defined by the difference between quantity demanded and quantity supplied $ED\equiv q_{D}-q_{S}$ as
 $$
 ED=8-7p
 $$
-- Econ 101 says that in a market equilibrium the price $p^*$ is such that no excess demand $ED=0$.
+- From your Econ 101:
+    - The equilibrium price $p^*$ is such that $ED=0$.
+    - $ED>0$ when $p$ is too low, then we need to increase $p$ until $ED=0$.
+    - $ED<0$ when $p$ is too high, then we want to reduce $p$ until $ED=0$.
 - We can solve this system by contraction mapping using the following updating equation
 $$
 p^{(i+1)}=p^{(i)}+vED^{(i)}=p^{(i)}+v(8-7p^{(i)})
 $$
-where $v$ is the convergence factor, and $i$ denotes for the $i$-th iteration. That is, $p^{(i)}$ is our guess to $p^*$ in the $i$-th iteration and we get $p^{(i+1)}$ for our next iteration. This approach is similar to that in Lucas and Alvarez (2007) and has been widely used in quantitative trade models.
-- If we do reach the equilibrium, the the above updating equation automatically becomes $p^*=p^*$ since $ED=0$ must hold.
-- This time we wrap it into a function so that we can demonstrate how the convergence factor matters here.
+where $v$ is the convergence factor, and $i$ denotes for the $i$-th iteration. That is, $p^{(i)}$ is our guess to $p^*$ in the $i$-th iteration and we get $p^{(i+1)}$ for our next iteration. 
+    - Similar approach has been used in Lucas and Alvarez (2007) and quantitative trade models.
+- The updating equation is **consistent** with what Econ 101 has to say:
+    - If $p^{(i)}$ is too low, then $ED>0$ so that $p^{(i+1)}>p^{(i)}$.
+    - If $p^{(i)}$ is too high, then $ED<0$ so that $p^{(i+1)}<p^{(i)}$.
+    - If $p^{(i)}$ is close to the equilibrium price $p^*$, then $ED\approx 0$ so that $p^{(i+1)}\approx p^{i}\approx p^*$, a convergence.
+- The convergence factor $v$ is chosen such that the updating equation is a contraction mapping.
+- Wrap the algorithm into a function so that we can demonstrate how $v$ matters here.
 
 ```{r}
 
@@ -1004,7 +1013,7 @@ pev01
 
 - Why does the first attempt with `v=1` fails but the second attempt with `v=0.1`? Recall the Cobweb Theory you have learned back in Econ 101. The condition for contraction mapping fails to hold when `v=1`.
 
-```{r,echo=FALSE}
+```{r}
 #Diverging
 qd<-function(p) {10-2*p}
 qs<-function(p) {2+5*p}
@@ -1054,7 +1063,7 @@ grid.arrange(p2,p1,
 
 - By changing `v=0.1`, we find a new updating rule such that contraction mapping holds.
 
-```{r,echo=FALSE}
+```{r}
 #Diverging
 qd<-function(p) {10-2*p}
 qs<-function(p) {2+5*p}
@@ -1198,6 +1207,9 @@ $$
 w_{k}^{\left(i+1\right)}=w_{k}^{\left(i\right)}+v\left(\frac{I_{k}^{\left(i\right)}}{\varphi_{k}}\frac{1}{4}\left[\left(\frac{\varphi_{k}}{w_{k}^{\left(i\right)}}\right)^{2}+\left(\frac{\varphi_{j}}{w_{j}^{\left(i\right)}}\right)^{2}\right]-1\right)
 $$
 
+- The updating equation for the inner loop is exactly the goods market clearing condition, which is by itself a contraction mapping.
+- The updating equation for the outer loop is based on excess demand in labor market using the Lucas-Alvarez approach: For country $k$, a $w_k^{i}$ too high leads to negative excess demand so that $w_k^{(i+1)}<w_k^{i}$ must hold. Otherwise $w_k^{(i+1)}$ must increase.
+
 #### Implementation
 
 - The goods market clearing condition shows that the share of a country's income to the whole economy is exactly the country's share of productivity adjusted wage to the economy. Since $\varphi_A=1$ and $\varphi_B=2$, it is reasonable to initialize the computation with a guess such that $I_B=2I_A$ and $w_B=2w_A$.
@@ -1292,13 +1304,17 @@ I.out
     x^{(i+1)} = x^{(i)} +v(g(x^{(i)}))
     $$
     This is similar to the above one. The way we deal with the excess demand in the second example and in the last example belongs to this approach.
-    - Construct the updating rule with economics thinking. For example, we say that the excess demand is defined as $q_d-q_s$ and vanishes as we reduce the price starting from a high level. But what if we write $q_s-q_d$ in the updating equation instead? You will get a **negative price** with a positive convergence factor. Mathematically it is easy to fix. But this way of writing by itself is unreasonable from an economic view. We should not run into this problem (and confusion to the results) if we have think through the ideas behind the equations of models.
+    - Construct the updating rule with economics thinking. When should we increase or decrease the initial guess in the next iteration? It is guided by the model we work with. The second and the third examples demonstrate this point already.
 
 ## Remarks
 
 - Fixed point iteration / contraction mapping is easy to hand code from scratch.
 - Accommodates root finding problems. Use convergence factor to "force out" a contraction mapping from a root finding problem.
 - Can be extended to higher dimensions to solve a system of equations as we have seen.
+
+# Reference
+
+- Alvarez, Fernando, and Robert E. Lucas Jr. (2007) "General Equilibrium Analysis of the Eaton–Kortum Model of International Trade," *Journal of monetary Economics*, 54, 1726-1768.
 
 # Assignment
 
