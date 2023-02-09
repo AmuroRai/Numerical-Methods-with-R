@@ -5,6 +5,7 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
+    number_sections: true
 runtime: shiny
 ---
 
@@ -157,7 +158,7 @@ $$
 1 = \int_{x\in\mathbf{X}} \int_{y\in\mathbf{Y}} f_{X,Y}(x,y)dydx
 $$
 
-## Bivariate Normal Distribution
+# Bivariate Normal Distribution
 
 - Univariate Normal Distribution: The pdf is given by 
 $$
@@ -355,11 +356,11 @@ $$
 $$
 You will get a 2-by-N matrix, with the first row being the sample of $X$ and the second row being the sample of $Y$. Therefore, each column represents an observation $(x,y)$ and in total the sample size is N.
 
-### In-class Exercise
+## In-class Exercise
 1. Draw a sample of size 5000 from a bivariate normal distribution. You can choose whatever means, variances and coefficient of correlation.
 2. Compute the means, variances, and coefficient of correlation from the sample you just have drawn. Compare with the parameters you provided.
 
-## Gibbs Sampling
+# Gibbs Sampling
 
 - Sampling from Bivariate, and even Multivariate Normal is simple owing to the Linear Combination Property.
     - For the bivariate case, we have a closed-form solution to the Cholesky Decomposition.
@@ -460,7 +461,7 @@ There are several restrictions when using Gibb's Sampling.
     
     **Example 2:** The joint distribution of $(x,y)$ is defined on a rectangle $(0,10)\times(0,10)$ and at a point $(0,0)$. Suppose further that the distribution is atomistic such that the point $(0,0)$ happens by probability 0.9, and the rest of the probability is uniformly distributed on the rectangle. Gibbs Sampling is very likely to get stuck at point $(0,0)$. This two-dimensional case might not cause real problem as long as we perform a lot of draws. But in a high-dimensional case, say a 100 variable version of this distribution, Gibbs Sampling will certainly take astronomically many draws to really get a meaningful sample!
     
-### Assignment
+# Assignment
 
 1. Perform Gibbs Sampling to draw a sample of size 100000 from a Bivariate Normal Distribution. You are free to set $\mu_{x}$, $\mu_{y}$, $\sigma_{x}$, $\sigma_{y}$, and $\rho$. 
 

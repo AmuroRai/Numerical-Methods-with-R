@@ -5,6 +5,7 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
+    number_sections: true
 runtime: shiny
 ---
 
@@ -186,7 +187,7 @@ $$
 - Still informative to introduce **Kolmogorov's Law of Large Number**: as long as ${x_i}$ is drawn **independently** from an **identical distribution**, then $\sum_{i=1}^{n}\frac{f(x_i)}{n}$ converges to $E(f(x))$ **with probability 1**. This is almost always true in this course since we always do random draw from a given distribution.
 - ***Monte Carlo Integration always converges as a result of Strong Law of Large Number (Kolmogorov, in our case).***
 
-### In-Class Exercise
+## In-Class Exercise
 
 Perform Monte Carlo Integration for $\int^{1}_{0}x^{3}dx$ with a random vector of length 500 drawn from $U[0,1]$.
 
@@ -354,7 +355,7 @@ $$
 
 - Easier illustrated than said... Let's implement first then try to visualize.
 
-### Implementation on R
+## Implementation on R
 
 - `randtoolbox` implements Halton sequence as `halton(n, dim)`.
     - `n` is the number of points in the sequence.
@@ -531,7 +532,7 @@ ggplot(data=df,aes(x=i,y=value,color=Method))+
   ylim(c(3.5,5.2))
 ```
 
-### In-Class Exercise
+## In-Class Exercise
 
 Consider the integration problem
 $$
@@ -771,7 +772,7 @@ proc.time() - ptm #Stop timer and show proc.time. Much longer than Kronecker!
 rs.kron==rs.loop
 ```
 
-### In-Class Exercise
+## In-Class Exercise
 
 Try out the following 5-dimensional integration
 $$

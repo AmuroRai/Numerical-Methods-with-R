@@ -5,6 +5,7 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
+    number_sections: true
 runtime: shiny
 ---
 

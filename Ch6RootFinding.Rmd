@@ -6,6 +6,7 @@ output:
   html_document:
     df_print: paged
     code_folding: show
+    number_sections: true
 runtime: shiny
 ---
 
@@ -1013,7 +1014,7 @@ pev01
 
 - Why does the first attempt with `v=1` fails but the second attempt with `v=0.1`? Recall the Cobweb Theory you have learned back in Econ 101. The condition for contraction mapping fails to hold when `v=1`.
 
-```{r}
+```{r,fig.width = 10,fig.asp=0.5}
 #Diverging
 qd<-function(p) {10-2*p}
 qs<-function(p) {2+5*p}
@@ -1063,7 +1064,7 @@ grid.arrange(p2,p1,
 
 - By changing `v=0.1`, we find a new updating rule such that contraction mapping holds.
 
-```{r}
+```{r,fig.width = 10,fig.asp=0.5}
 #Diverging
 qd<-function(p) {10-2*p}
 qs<-function(p) {2+5*p}
@@ -1312,10 +1313,11 @@ I.out
 - Accommodates root finding problems. Use convergence factor to "force out" a contraction mapping from a root finding problem.
 - Can be extended to higher dimensions to solve a system of equations as we have seen.
 
-# Reference
-
-- Alvarez, Fernando, and Robert E. Lucas Jr. (2007) "General Equilibrium Analysis of the Eaton–Kortum Model of International Trade," *Journal of monetary Economics*, 54, 1726-1768.
-
 # Assignment
 
 - Complete your contraction mapping algorithm to solve find the root of $x^{\frac{1}{3}}-x=0$. Should be a cake walk if you are able to follow the other more complicated examples of contraction mapping.
+
+# Reference
+
+- Alvarez, Fernando, and Robert E. Lucas Jr. (2007) "General Equilibrium Analysis of the Eaton–Kortum Model of International Trade," *Journal of monetary Economics*, 54, 1726-1768.
+- Krugman, Paul (1980) "Scale Economies, Product Differentiation, and the Pattern of Trade," *American Economic Review*, 70, 950-959.

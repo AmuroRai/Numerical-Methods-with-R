@@ -5,6 +5,8 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
+    code_folding: show
+    number_sections: true
 runtime: shiny
 ---
 
@@ -53,7 +55,7 @@ pre { /* Code block - determines code spacing between lines */
 
 # Finite Difference Approach
 
-```{r, message=FALSE,echo=FALSE,warning=FALSE}
+```{r, message=FALSE,warning=FALSE}
 library(tidyverse)
 ```
 
@@ -194,7 +196,9 @@ f^{(n)}(x) \approx \frac{\sum^n_{i=0}(-1)^iC^n_if(x+(\frac{n}{2}-i)h)}{h^n}
 $$
 - Find Wikipedia for the formula for both Forward and Backward Rules: https://en.wikipedia.org/wiki/Finite_difference
 
-- **In-Class Exercise:** Let $x$ be the last digit of your student ID. Find the third derivative for $y=1/(1+x)$ at $x$ using the Central Difference Rule with $h=10^-6$. You can do the math from the second-order derivative on your own. Or you can use the formula above. In this case, you need to use `factorial(n)` to compute $n!$. Note that $C^n_i=\frac{n!}{i!(n-i)!}$.
+### In-Class Exercise 
+
+Let $x$ be the last digit of your student ID. Find the third derivative for $y=1/(1+x)$ at $x$ using the Central Difference Rule with $h=10^{-6}$. You can do the math from the second-order derivative on your own. Or you can use the formula above. In this case, you need to use `factorial(n)` to compute $n!$. Note that $C^n_i=\frac{n!}{i!(n-i)!}$.
 
 ## The Smaller the Step Size, the Better?
 
@@ -292,10 +296,10 @@ format(2^-53+2^-53+1,nsmall=20) #But here it is NOT treated as 0 since we are ad
       See Wikipedia: https://en.wikipedia.org/wiki/Big_O_notation
     - In a nutshell, $h^2$ is smaller than $h$ when $h$ is less than 1 as required by numerical derivative. Therefore the Central Rule is more accurate than the Forward Rule.
     
-2. A rule of thumb to improve the precision issue is to simply use the **square root of machine epsilon**. For R, it is exactly $\sqrt{2^{-52}}=2^{-26}$. We demonstrate with the same example. It out performs all $h$ in the previous example except $10^{-7}$ and $10^{-8}$.
+2. A rule of thumb to improve the precision issue is to simply use the **cube root of machine epsilon**. For R, it is exactly $2^{-\frac{52}{3}}\approx6\times10^{-6}$. We demonstrate with the same example. It out performs all $h$ in the previous example except $10^{-7}$ and $10^{-8}$.
 ```{r}
-#Use square root of machine epsilon as our step size.
-oh<-sqrt(me) #About 1.5e-8, so is between 1e-8 and 1e-7.
+#Use cube root of machine epsilon as our step size.
+oh<-me^(1/3) #About 6e-6.
 val.oh<-(func(x+oh)-func(x))/oh #Use Forward Difference Rule for comparison.
 error.oh<-abs(val.oh+0.04)
 error.oh #Report Error
@@ -310,7 +314,7 @@ rst[which(rst$Error<error.oh),]%>%print()
 1. Divide the interval $x\in[1,2]$ into 100 equidistant points with `seq()`.
 2. Compute the *second-derivative* of $y=3x^2+\ln(x^2)$ with the Central Rule at the 100 points you just obtained using the following step sizes: $h\in\{2^{-26},10^{-7},10^{-6},10^{-5}\}$.
 3. Note that the true value is $y^{\prime}=6x+\frac{2}{x}$. Find the error for each point, and make an error plot with error on y-axis, $x$ on x-axis, and use different lines for different levels of $h$.
-4. Nash (1990) proposes to use a location-dependent step size. Specifically, he suggests that we use $h=\epsilon\times(|x|+\epsilon)$ where $\epsilon$ is a small number. Repeat 2 and 3 using Nash's approach, and we compare diffferent settings of $\epsilon$ by trying out $\epsilon\in\{2^{-26},10^{-7},10^{-6},10^{-5}\}$.
+4. Nash (1990) proposes to use a location-dependent step size. Specifically, he suggests that we use $h=\epsilon\times(|x|+\epsilon)$ where $\epsilon$ is a small number. Repeat 2 and 3 using Nash's approach, and we compare different settings of $\epsilon$ by trying out $\epsilon\in\{2^{-26},10^{-7},10^{-6},10^{-5}\}$.
 
 ## Multivariate Finite Difference
 
@@ -366,7 +370,7 @@ return(out)
 
 #The true values are that fx=0.7, fy=0.3, fxx=fyy=-0.21, fxy=fyx=0.21
 
-rst<-lapply(c(1e-9,1e-8,sqrt(me),1e-7,1e-6,1e-5,1e-4),dU12)
+rst<-lapply(c(1e-9,1e-8,me^(1/3),1e-7,1e-6,1e-5,1e-4),dU12)
 rst<-do.call(rbind,rst)
 rst #1e-7 and higher are way more reasonable!
 
@@ -374,7 +378,7 @@ rst #1e-7 and higher are way more reasonable!
 #We use Euclidean Norm for |x|, i.e., |(x-a,y-b)| = sqrt((x-a)^2+(y-b)^2).
 #We compute the distance to the origin so a=b=0.
 nashh<-function(t) {t*(sqrt(1^2+1^2)+t)}
-h<-nashh(c(1e-9,1e-8,sqrt(me),1e-7,1e-6,1e-5,1e-4))
+h<-nashh(c(1e-9,1e-8,me^(1/3),1e-7,1e-6,1e-5,1e-4))
 rst<-lapply(h,dU12)
 rst<-do.call(rbind,rst)
 rst #Similar to above: those computed from 1e-7 or above are way better. But yes, error reduced.

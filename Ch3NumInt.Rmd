@@ -5,6 +5,7 @@ date: "2023 Fall"
 output:
   html_document:
     df_print: paged
+    number_sections: true
 runtime: shiny
 ---
 
@@ -1009,25 +1010,6 @@ server = function(input,output) {
 )
 ```
 
-### Assignment: Which Rule to Use?
-
-- We have seen that there are various ways to perform transformation so that an integration problem can fit into multiple Gaussian Quadrature Rules. But obviously some rules are not very accurate / efficient in handling the problem of interest. Put it differently, some types of functions are particularly difficult to integrate with a given quadrature rule: being slow, inaccurate or not even converging.
-
-- My hunch is that we should respect the designs of the rules. The rules are optimized against the form of $p(x)$, hence we should just go for those rules if our problem is already aligned with $p(x)$. That is, we should avoid supplying $p(x)$ artificially. Then we ask if we need to do change of variable so that the intervals are aligned. In short, we go for the rule that can be applied with minimal twists to our integration problem.
-
-- For your assignment, consider again the problem
-$$
-\int^{\infty}_{-\infty}\frac{1}{z^2+1}dz
-$$
-The correct answer is $\pi$. We have tried to use Gauss-Hermite for it, but the answer is always somewhere around $2.99$ despite that we have used 350 nodes! Using more nodes doesn't seem to improve the results much, and can even lead to missing solutions if we add even more nodes. Your missions are as follows:
-1. Convert this problem into a finite interval and do it with Gauss-Legendre.
-2. Use the additivity of integral to reformulate the problem as 
-$$
-\int^{\infty}_{0}\frac{1}{z^2+1}dz+\int^{0}_{-\infty}\frac{1}{z^2+1}dz
-$$ 
-and then do it with Gauss-Laguerre.
-3. How many nodes are needed for the solutions to be close to $\pi$ at $\epsilon=10^{-6}$? In the cases that R fails to evaluate for nodes too many, find how close to $\pi$ the results are.
-
 ## Further Discussions
 
 - `pracma` offers a lot more rules (Gaussian or not) to perform numerical integration such as Gauss-Chebyshev, Clenshaw-Curtis, and Gauss-Konrod. You can explore around with its documentation.
@@ -1068,3 +1050,22 @@ where nodes and weights are obtained from the corresponding quadrature rules.
     - The `mvQuad` package also implements multi-dimensional numerical integration for the quadrature we have discussed. But personally I don't like it as the functions are full of black-boxes, plus its definitions to quadratures seem to be very different from convention.
 
 - But how many nodes are needed? Using 2 nodes for each dimension will lead to 4 nodes in total. Using 10 nodes for each dimension then lead to 100 nodes in total! This is so called **curse of dimensionality**: we need more nodes for accuracy, but the nodes grow in **exponential** manner as we have more dimensions! It's going to be slow and eventually become inefficient / infeasible.
+
+## Assignment: Which Rule to Use?
+
+- We have seen that there are various ways to perform transformation so that an integration problem can fit into multiple Gaussian Quadrature Rules. But obviously some rules are not very accurate / efficient in handling the problem of interest. Put it differently, some types of functions are particularly difficult to integrate with a given quadrature rule: being slow, inaccurate or not even converging.
+
+- My hunch is that we should respect the designs of the rules. The rules are optimized against the form of $p(x)$, hence we should just go for those rules if our problem is already aligned with $p(x)$. That is, we should avoid supplying $p(x)$ artificially. Then we ask if we need to do change of variable so that the intervals are aligned. In short, we go for the rule that can be applied with minimal twists to our integration problem.
+
+- For your assignment, consider again the problem
+$$
+\int^{\infty}_{-\infty}\frac{1}{z^2+1}dz
+$$
+The correct answer is $\pi$. We have tried to use Gauss-Hermite for it, but the answer is always somewhere around $2.99$ despite that we have used 350 nodes! Using more nodes doesn't seem to improve the results much, and can even lead to missing solutions if we add even more nodes. Your missions are as follows:
+1. Convert this problem into a finite interval and do it with Gauss-Legendre.
+2. Use the additivity of integral to reformulate the problem as 
+$$
+\int^{\infty}_{0}\frac{1}{z^2+1}dz+\int^{0}_{-\infty}\frac{1}{z^2+1}dz
+$$ 
+and then do it with Gauss-Laguerre.
+3. How many nodes are needed for the solutions to be close to $\pi$ at $\epsilon=10^{-6}$? In the cases that R fails to evaluate for nodes too many, find how close to $\pi$ the results are.
