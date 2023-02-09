@@ -850,18 +850,18 @@ server = function(input,output) {
 ```
 
 - Why can we do this? Because of **Contraction Mapping Theorem**.
-    - **Contraction Mapping:** Consider a mapping $f(.)$ and two points $x$ and $y$. The mapping $f(.)$ is called a contraction mapping if there exists a $k\in[(]0,1)$ such that $|f(x)-f(y)|\leq k|x-y|$.
+    - **Contraction Mapping:** Consider a mapping $f(.)$ and two points $x$ and $y$. The mapping $f(.)$ is called a contraction mapping if there exists a $k\in(0,1)$ such that $|f(x)-f(y)|\leq k|x-y|$.
     
     If $f(.)$ is a continuous function, then this is equivalent to that $|f^{\prime}|<1$.
     - **Banach Fixed Point Theorem:** Also referred to as Contraction Mapping Theorem. In a simplified manner, this theorem says that in a non-empty complete space with a contraction mapping, there always exists a fixed point $x^*$. Moreover, sequence generated from the contraction mapping $\{x_n\}$ converges to this fixed point.
     - For details, take a Real Analysis course.
 - The fixed point iteration, also known as contraction mapping iteration, is an implementation to Banach Fixed Point Theorem. 
 
-    If $h(x)$ is a contraction mapping ($h^{\prime}(x)<0$), then the initial guess and updates are the sequences generated from this contraction mapping, and Banach Fixed Point Theorem guarantees that eventually we get the fixed point if we do enough of iterations.
+    If $h(x)$ is a contraction mapping ($|h^{\prime}(x)|<1$), then the initial guess $x_0$ and updates $x_i$ is exactly a sequence generated from this contraction mapping $\{x_i\}_{i=0}^{n}$, and Banach Fixed Point Theorem guarantees that eventually we get the fixed point if we do enough of iterations. Namely, for large enough $n$ the sequence $\{x_i\}_{i=0}^{n}$ converges to a unique $x^*$ such that $h(x^*)=x^*$.
 
 - In short:
     1. One can convert a root finding problem into a fixed point problem.
-    2. **Require $h^{\prime}(x)<0$ for fixed point iteration to work.** 
+    2. **Require $|h^{\prime}(x)|<1$ for fixed point iteration to work.** 
     3. Because of 2, one can use a convergence factor when reformulating the root finding problem to ensure that the mapping becomes a contraction mapping.
 
 ## Implementation on R
