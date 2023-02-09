@@ -314,7 +314,7 @@ rst[which(rst$Error<error.oh),]%>%print()
 1. Divide the interval $x\in[1,2]$ into 100 equidistant points with `seq()`.
 2. Compute the *second-derivative* of $y=3x^2+\ln(x^2)$ with the Central Rule at the 100 points you just obtained using the following step sizes: $h\in\{2^{-26},10^{-7},10^{-6},10^{-5}\}$.
 3. Note that the true value is $y^{\prime}=6x+\frac{2}{x}$. Find the error for each point, and make an error plot with error on y-axis, $x$ on x-axis, and use different lines for different levels of $h$.
-4. Nash (1990) proposes to use a location-dependent step size. Specifically, he suggests that we use $h=\epsilon\times(|x|+\epsilon)$ where $\epsilon$ is a small number. Repeat 2 and 3 using Nash's approach, and we compare different settings of $\epsilon$ by trying out $\epsilon\in\{2^{-26},10^{-7},10^{-6},10^{-5}\}$.
+4. Nash (1990) proposes to use a location-dependent step size. Specifically, he suggests that we use $h=\epsilon\times(|x|+\epsilon)$ where $\epsilon$ is the square root of machine epsilon. Repeat 2 and 3 using Nash's approach and compare with the results in the previous questions.
 
 ## Multivariate Finite Difference
 
@@ -372,16 +372,14 @@ return(out)
 
 rst<-lapply(c(1e-9,1e-8,me^(1/3),1e-7,1e-6,1e-5,1e-4),dU12)
 rst<-do.call(rbind,rst)
-rst #1e-7 and higher are way more reasonable!
+rst #Cube root of machine epsilon or above are ok.
 
 #Try out Nash's way but we revise it to fit into multidimension.
 #We use Euclidean Norm for |x|, i.e., |(x-a,y-b)| = sqrt((x-a)^2+(y-b)^2).
 #We compute the distance to the origin so a=b=0.
-nashh<-function(t) {t*(sqrt(1^2+1^2)+t)}
-h<-nashh(c(1e-9,1e-8,me^(1/3),1e-7,1e-6,1e-5,1e-4))
-rst<-lapply(h,dU12)
-rst<-do.call(rbind,rst)
-rst #Similar to above: those computed from 1e-7 or above are way better. But yes, error reduced.
+h<-sqrt(me)*(sqrt(1^2+1^2)+sqrt(me))
+rst<-dU12(h)
+rst #Quite disappointing!
 
 ```
 
