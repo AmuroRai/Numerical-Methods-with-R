@@ -239,7 +239,7 @@ ggplot(data=rst,aes(x=log(Step),y=log(Error)))+
 ```
 
 - Machine epsilon is the ***worst***, followed by $10^{-15}$. Setting $h=1$ is way more accurate than them!
-- The error plot is, by and large, U-shaped. But it in fact fluctuates along the way if we add more points.
+- The error plot is, by and large, U-shaped. But it in fact fluctuates along the way if we add more points. Actually, the part to the left of the valley is **very noisy**.
 
 - Why is small $h$ tend to be bad? There are two reasons.
 
@@ -274,6 +274,40 @@ format(2^-53+2^-53+1,nsmall=20) #But here it is NOT treated as 0 since we are ad
 ```
     
   The above nature of float number system leads to an rounding issue. There are small numbers in the expressions already, and they can accumulate during arithmetic operations and eventually becomes large enough to be meaningful. This leads to errors in the results.
+  
+3. Cancellation error
+
+- Related to how float numbers worked.
+- For example, let $h=1e-12$, $a=1$, $b=a+h$, $c=b-a$ and $d=c/h$. You expect the following:
+$$
+b=1+10^{-12};\ c=h=10^{-12};\ d=1
+$$
+- R has a different opinion...
+```{r}
+h<-1e-12
+a<-1
+b<-a+h
+c<-b-a
+d<-c/h
+
+# c != h as opposed to our math common sense
+c
+h
+c==h
+
+# d != 1 as opposed to our math common sense
+d
+d==1
+```
+
+- Computing with small numbers is always noisy. When doing $b=1+h$ we are in fact getting $b=1+h+\text{noise}$.
+- The noise is kept when we do $c=b-a$. We actually get $c=h+noise$.
+- The noise $h$ is magnified in $d=c/h$. We get $d=1+\text{noise}/h$. Since the noise is fixed but $h$ is small, then the noise term is going to be very large!
+- But the procedure above is what we do in finite difference numerical differentiation!!
+
+- Quick summary:
+    1. Starting from $h=1$, we reduce the error by reducing $h$. This part is so called the **truncation error** and by the definition of derivative it fades away as we reduce $h$.
+    2. After touching the bottom, further reducing $h$ leads to both **roundoff error** and **cancellation error**. These error always propagates.
 
 - How to improve the accuracy?
 
