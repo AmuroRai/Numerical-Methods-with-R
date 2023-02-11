@@ -227,32 +227,19 @@ for (i in 1:length(h)) {
 rst<-mutate(rst,Error=abs(Value+0.04))
 
 #Plot the error. We take log to the step sizes for better exposition.
-ggplot(data=rst,aes(x=log(Step),y=Error))+
+ggplot(data=rst,aes(x=log(Step),y=log(Error)))+
   geom_line(color="blue",size=1,alpha=0.7)+
   geom_point(aes(x=log(h)))+
-  annotate(geom="text",x=log(rst$Step[-length(h)]),y=rst$Error[-length(h)],
+  annotate(geom="text",x=log(rst$Step[-length(h)]),y=log(rst$Error[-length(h)]),
            label=as.character(h)[-length(h)],
            size=3,vjust=-1,hjust=1)+
-  annotate(geom="text",x=log(h[length(h)]),y=rst$Error[length(h)],
+  annotate(geom="text",x=log(h[length(h)]),y=log(rst$Error[length(h)]),
            label=as.character(h)[length(h)],size=3,vjust=-1,hjust=0)+
   labs(title="Error by Step Sizes")
 ```
 
 - Machine epsilon is the ***worst***, followed by $10^{-15}$. Setting $h=1$ is way more accurate than them!
 - The error plot is, by and large, U-shaped. But it in fact fluctuates along the way if we add more points.
-- Zoom in to check how $10^{-5}$ to $10^{-9}$ perform.
-```{r, wargning=FALSE, message=FALSE}
-#Zoom to (1e-9,1e-5)
-ggplot(data=rst,aes(x=log(Step),y=Error))+
-  geom_line(color="blue",size=1,alpha=0.7)+
-  geom_point(aes(x=log(h)))+
-  annotate(geom="text",x=log(rst$Step[-length(h)]),y=rst$Error[-length(h)],
-           label=as.character(h)[-length(h)],
-           size=4,vjust=-1,hjust=0.5)+
-  labs(title="Step size from 1e-9 to 1e-5")+
-  ylim(c(0,1e-7))+xlim(c(log(1e-9),log(1e-5)))
-
-```
 
 - Why is small $h$ tend to be bad? There are two reasons.
 
