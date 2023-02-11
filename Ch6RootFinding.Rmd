@@ -1192,7 +1192,7 @@ where $\frac{\sigma-1}{\sigma}X_k$ is the wage bill paid by the the firm to the 
 
 - Assume that $\sigma=2$, $\varphi_A=1$ and $\varphi_B=2$ for simplicity. We can thus boil down the goods market clearing condition and the excess demand of the labor market $EDL$ as
 $$
-I_{i}=\frac{\left(\frac{w_{i}}{\varphi_{i}}\right)^{1-\sigma}}{\left(\frac{w_{i}}{\varphi_{i}}\right)^{1-\sigma}+\left(\frac{w_{j}}{\varphi_{j}}\right)^{1-\sigma}}\left(I_{i}+I_{j}\right)
+I_{k}=\frac{\left(\frac{w_{k}}{\varphi_{k}}\right)^{1-\sigma}}{\left(\frac{w_{k}}{\varphi_{k}}\right)^{1-\sigma}+\left(\frac{w_{j}}{\varphi_{j}}\right)^{1-\sigma}}\left(I_{k}+I_{j}\right)
 $$
 and
 $$
