@@ -4,7 +4,7 @@ This course is designed to cultivate abilities in programming and performing num
 
 I acknowledge Prof. Hung-Jen Wang at the Department of Economics, National Taiwan University for generously sharing his teaching material, and providing invaluable advices and feedback on the design of the course.
 
-# References
+## References
 - Kenneth L. Judd (1998), *Numerical Methods in Economics*, 1st Edition, MIT Press.
 - Kochenderfer, Mykel J. and Tim A. Wheeler (2019), *Algorithms for Optimization*, MIT Press
 - Koziel, Slawomir, and Xin-She Yang (2011), *Computational Optimization, Methods and Algorithms*, Springer.
