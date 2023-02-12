@@ -215,27 +215,20 @@ Let $x$ be the last digit of your student ID. Find the third derivative for $y=1
 me<-.Machine$double.eps #About 2^-52, which falls between (10^-16,10^-15).
 s<-c(0:15)
 h<-c(10^(-s),me) #The sequence is 10^-i, i={0,...,15} plus machine epsilon.
-rst<-data.frame(h,
-                rep(NA,length(h)))%>%
-  'colnames<-'(c("Step","Value"))
 
-#Loop to get derivatives using different step sizes, and compute error.
-#Here we use Forward Difference Rule for demonstration.
-for (i in 1:length(h)) {
-  rst$Value[i]<-(func(x+h[i])-func(x))/h[i]
-}
-rst<-mutate(rst,Error=abs(Value+0.04))
+#Use both forward and central rules
+dif<-c((func(x+h)-func(x))/h,(func(x+(h/2))-func(x-(h/2)))/h)
+err<-abs(dif+0.04)
+rst<-data.frame(rep(h,2),err,
+                c(rep("Forward Difference",length(h)),rep("Central Difference",length(h))))%>%
+  'colnames<-'(c("Step","Error","Method"))
 
-#Plot the error. We take log to the step sizes for better exposition.
-ggplot(data=rst,aes(x=log(Step),y=log(Error)))+
-  geom_line(color="blue",size=1,alpha=0.7)+
-  geom_point(aes(x=log(h)))+
-  annotate(geom="text",x=log(rst$Step[-length(h)]),y=log(rst$Error[-length(h)]),
-           label=as.character(h)[-length(h)],
-           size=3,vjust=-1,hjust=1)+
-  annotate(geom="text",x=log(h[length(h)]),y=log(rst$Error[length(h)]),
-           label=as.character(h)[length(h)],size=3,vjust=-1,hjust=0)+
-  labs(title="Error by Step Sizes")
+ggplot(data=rst,aes(x=Step,y=Error))+
+  geom_line(aes(color=Method),size=1,alpha=0.7)+
+  geom_point(aes(x=Step,y=Error),color="black",size=1)+
+  scale_x_log10()+scale_y_log10()+
+  scale_color_manual(values=c("blue","red"),
+                      breaks=c("Central Difference","Forward Difference"))
 ```
 
 - Machine epsilon is the ***worst***, followed by $10^{-15}$. Setting $h=1$ is way more accurate than them!
@@ -311,21 +304,32 @@ d==1
 
 - How to improve the accuracy?
 
-1. Use Central Difference Rule. It is proven that the error term of Central Rule converges to 0 at order $O(h^2)$, while for Forward Rule it is at order $O(h)$.
+1. Use Central Difference Rule. We have seen that the error is much smaller. It is proven that the error term of Central Rule converges to 0 at order $O(h^2)$, while for Forward Rule it is at order $O(h)$.
     - $O(.)$ is referred to as the "Big O notation" in computer science and econometrics. We say that $f(x)$ is $O(g(x))$ if for a a function that $g(x)>0$ there exists a $M$ and a $x_0$ such that we have $|f(x)|\leq Mg(x)$ for all $x>x_0$. If we think of $f(x)$ as an error term, then $O(g(x))$ says that the error is no larger than $g(x)$ when $x$ is large enough.
     
       See Wikipedia: https://en.wikipedia.org/wiki/Big_O_notation
     - In a nutshell, $h^2$ is smaller than $h$ when $h$ is less than 1 as required by numerical derivative. Therefore the Central Rule is more accurate than the Forward Rule.
     
-2. A rule of thumb to improve the precision issue is to simply use the **cube root of machine epsilon**. For R, it is exactly $2^{-\frac{52}{3}}\approx6\times10^{-6}$. We demonstrate with the same example. It out performs all $h$ in the previous example except $10^{-7}$ and $10^{-8}$.
+2. Rule of thumb: Let $\epsilon$ be the machine epsilon, we use $h=\max\{x,1\}\sqrt{\epsilon}$ for the Forward Difference Rule, and $h=\max\{x,1\}\epsilon^{\frac{1}{3}}$ for the Central Difference Rule.
+
+    This is an observation from the error plot above: the step size for minimum error is about the square root of machine epsilon for Forward Rule, and about the cube root for Central Rule.
+
+    Note that for **second derivative** the denominator is the square of the step size, which enlarges the cancellation error. Therefore we want to use $h=\max\{x,1\}\epsilon^\frac{1}{4}$ and $h=\max\{x,1\}\epsilon^\frac{1}{6}$ for Forward and Central Rules instead.
 ```{r}
 #Use cube root of machine epsilon as our step size.
-oh<-me^(1/3) #About 6e-6.
+oh<-max(x,1)*me^(1/2)
 val.oh<-(func(x+oh)-func(x))/oh #Use Forward Difference Rule for comparison.
 error.oh<-abs(val.oh+0.04)
 error.oh #Report Error
 #Find the step sizes in the previous example that are more accurate than using `oh`.
-rst[which(rst$Error<error.oh),]%>%print()
+rst[which(rst$Error<error.oh&&rst$Method=="Forward Difference"),]%>%print()
+
+oh<-max(x,1)*me^(1/3)
+val.oh<-(func(x+(oh/2))-func(x-(oh/2)))/oh #Use Forward Difference Rule for comparison.
+error.oh<-abs(val.oh+0.04)
+error.oh #Report Error
+#Find the step sizes in the previous example that are more accurate than using `oh`.
+rst[which(rst$Error<error.oh&&rst$Method=="Central Difference"),]%>%print()
 ```
 
 3. In practice, say IT companies, the step size is oftentimes fixed at $10^{-6}$ or $10^{-5}$.
@@ -391,9 +395,9 @@ return(out)
 
 #The true values are that fx=0.7, fy=0.3, fxx=fyy=-0.21, fxy=fyx=0.21
 
-rst<-lapply(c(1e-9,1e-8,me^(1/3),1e-7,1e-6,1e-5,1e-4),dU12)
+rst<-lapply(c(1e-9,1e-8,1e-7,1e-6,1e-5,1e-4,me^(1/6)),dU12)
 rst<-do.call(rbind,rst)
-rst #Cube root of machine epsilon or above are ok.
+rst #1e-7 or above are OK.
 
 #Try out Nash's way but we revise it to fit into multidimension.
 #We use Euclidean Norm for |x|, i.e., |(x-a,y-b)| = sqrt((x-a)^2+(y-b)^2).
