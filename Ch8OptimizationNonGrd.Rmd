@@ -585,7 +585,7 @@ PSO<-function(fun,bnd,n=3,w=0.8,c1=0.05,c2=0.05,imax=1000,...) {
   
   #Check eligibility
   if(!is.function(fun)) {stop("fun must be a function.")}
-  if(!is.list(bnd)||names(bnd)!=c("var","lb","ub")) {
+  if(!is.list(bnd)||sum(names(bnd)==c("var","lb","ub"))!=3) {
     stop("bnd must be a named list with names being c(\"var\",\"lb\",\"ub\").")}
   if(length(bnd[[1]])!=length(bnd[[2]])||length(bnd[[1]])!=length(bnd[[3]])) {
     stop("Length of bnd$var, bnd$lb and bnd$ub do not align.")
@@ -751,7 +751,7 @@ PSO<-function(fun,bnd,n=3,w=0.8,c1=0.05,c2=0.05,imax=1000,...) {
   
   #Check eligibility
   if(!is.function(fun)) {stop("fun must be a function.")}
-  if(!is.list(bnd)||names(bnd)!=c("var","lb","ub")) {
+  if(!is.list(bnd)||sum(names(bnd)==c("var","lb","ub"))!=3)  {
     stop("bnd must be a named list with names being c(\"var\",\"lb\",\"ub\").")}
   if(length(bnd[[1]])!=length(bnd[[2]])||length(bnd[[1]])!=length(bnd[[3]])) {
     stop("Length of bnd$var, bnd$lb and bnd$ub do not align.")
